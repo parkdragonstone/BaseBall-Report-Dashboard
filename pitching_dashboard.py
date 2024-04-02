@@ -13,6 +13,7 @@ FORCE_DIR = [i.replace('\\','/') for i in glob(FORCE_PATH)]
 
 kdf = pd.DataFrame()
 fdf = pd.DataFrame()
+
 for kine_dir, force_dir in zip(KINEMATIC_DIR, FORCE_DIR):
     kine = pd.read_csv(kine_dir)
     force = pd.read_csv(force_dir)
