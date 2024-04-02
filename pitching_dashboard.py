@@ -7,7 +7,7 @@ from glob import glob
 import data_concat
 
 st.set_page_config(layout="wide")
-@st.cache
+@st.cache_data
 def load_data():
     kdf, fdf = data_concat.data_concat()
     return kdf, fdf
