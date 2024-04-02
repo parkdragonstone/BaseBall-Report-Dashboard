@@ -364,7 +364,7 @@ kinematic_fig.update_layout(
 )
 
 st.header('분석 구간')
-st.image('image/analysis.PNG', use_column_width=True)
+st.image('image/analysis.png', use_column_width=True)
 
 st.subheader('KINEMATICS PARAMETERS')
 
