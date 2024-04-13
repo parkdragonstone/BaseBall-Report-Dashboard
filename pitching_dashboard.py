@@ -369,7 +369,7 @@ with page_tab1:
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
-            border-radius: 10px; /* 모서리 둥글기 */
+            border-radius: 0px; /* 모서리 둥글기 */
         }
         </style>
         <div class="kinetics-parameters">
@@ -385,7 +385,7 @@ with page_tab1:
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
-            border-radius: 10px; /* 모서리 둥글기 */
+            border-radius: 0px; /* 모서리 둥글기 */
         }
         </style>
         <div class="kinetics-parameters">
@@ -400,7 +400,7 @@ with page_tab1:
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
-            border-radius: 10px; /* 모서리 둥글기 */
+            border-radius: 0px; /* 모서리 둥글기 */
         }
         </style>
         <div class="kinetics-parameters">
@@ -451,7 +451,7 @@ with page_tab1:
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
-            border-radius: 10px; /* 모서리 둥글기 */
+            border-radius: 0px; /* 모서리 둥글기 */
         }
         </style>
         <div class="kinetics-parameters">
