@@ -96,8 +96,8 @@ ang_cols = {
     'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
     'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
     'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
-    'LEAD_KNEE_ANGLE_X'               : 'LEAD LEG KNEE FLEXION',
-    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD LEG KNEE EXTENSION ANGULAR VELOCITY',
+    'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
+    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
     'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
     'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
     'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
@@ -363,40 +363,123 @@ kinematic_fig.update_layout(
     height=400
 )
 
-st.header('분석 구간')
+st.markdown("""
+    <style>
+    .kinetics-parameters {
+        background-color: #26282F; /* 박스의 배경 색상 */
+        color: white; /* 텍스트 색상 */
+        padding: 2px; /* 안쪽 여백 */
+        border-radius: 10px; /* 모서리 둥글기 */
+    }
+    </style>
+    <div class="kinetics-parameters">
+        <h2>분석 구간</h2>
+    </div>
+""", unsafe_allow_html=True)
+
 st.image('image/analysis.png', use_column_width=True)
 
-st.subheader('KINEMATICS PARAMETERS')
+st.markdown("""
+    <style>
+    .kinetics-parameters {
+        background-color: #26282F; /* 박스의 배경 색상 */
+        color: white; /* 텍스트 색상 */
+        padding: 2px; /* 안쪽 여백 */
+        border-radius: 10px; /* 모서리 둥글기 */
+    }
+    </style>
+    <div class="kinetics-parameters">
+        <h2>ENERGY FLOW</h2>
+    </div>
+""", unsafe_allow_html=True)
 
-st.write('KINEMATIC SEQUENCE')
+# KINEMATICS PARAMETERS
+st.markdown("""
+    <style>
+    .kinetics-parameters {
+        background-color: #26282F; /* 박스의 배경 색상 */
+        color: white; /* 텍스트 색상 */
+        padding: 2px; /* 안쪽 여백 */
+        border-radius: 10px; /* 모서리 둥글기 */
+    }
+    </style>
+    <div class="kinetics-parameters">
+        <h2>KINEMATICS PARAMETERS</h2>
+    </div>
+""", unsafe_allow_html=True)
+st.subheader('Kinematic Sequence')
 col1, col2 = st.columns([1,2.8])
 with col1:
-    st.image('image/GRF_Y.png', use_column_width=True)
+    st.image('image/kinematic.png', use_column_width=True)
 with col2:
     st.plotly_chart(kinematic_fig, use_container_width=True)
 
-for col in ang_cols:
-    st.write(ang_cols[col])
+ang_cols = {
+    'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
+    'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
+    'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
+    'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
+    'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
+    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
+    'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
+    'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
+    'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
+}
+st.subheader('Ball Release')
+tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
+br_taps = st.tabs(['SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
+for tab, key in zip(br_taps, tabs_keys):
+    with tab:
+        col1, col2 = st.columns([1,2.8])
+        with col1:
+            st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+        with col2:
+            st.plotly_chart(kine_fig[key], use_container_width=True)
+
+    
+
+st.subheader('ARM ACCELERATION')
+            
+st.subheader('ARM COCKING')
+        
+st.subheader('STRIDE')
+
+# KINETICS PARAMETERS
+st.markdown("""
+    <style>
+    .kinetics-parameters {
+        background-color: #26282F; /* 박스의 배경 색상 */
+        color: white; /* 텍스트 색상 */
+        padding: 2px; /* 안쪽 여백 */
+        border-radius: 10px; /* 모서리 둥글기 */
+    }
+    </style>
+    <div class="kinetics-parameters">
+        <h2>KINETICS PARAMETERS</h2>
+    </div>
+""", unsafe_allow_html=True)
+
+kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS'])
+
+with kinetics_tab[0]:
     col1, col2 = st.columns([1,2.8])
     with col1:
         st.image('image/GRF_Y.png', use_column_width=True)
     with col2:
-        st.plotly_chart(kine_fig[col], use_container_width=True)
-            
+        st.plotly_chart(force_ap_fig, use_container_width=True)
+
+with kinetics_tab[1]:
+    col1, col2 = st.columns([1,2.8])
+    with col1:
+        st.image('image/GRF_Z.png', use_column_width=True)
+    with col2:
+        st.plotly_chart(force_vt_fig, use_container_width=True)
         
-st.subheader('KINETICS PARAMETERS')
-st.write("GROUND REACTION FORCE AP")
-col1, col2 = st.columns([1,2.8])
-with col1:
-    st.image('image/GRF_Y.png', use_column_width=True)
-with col2:
-    st.plotly_chart(force_ap_fig, use_container_width=True)
-force_ap_fig.update_layout(height=600) 
+# 사용자 피드백 받기
+user_feedback = st.text_input("여기에 피드백을 작성하세요", "", key="feedback_input")
 
-st.write("GROUND REACTION FORCE VERTICAL")
-col1, col2 = st.columns([1,2.8])
-with col1:
-    st.image('image/GRF_Z.png', use_column_width=True)
-with col2:
-    st.plotly_chart(force_vt_fig, use_container_width=True)
-
+if st.button("제출", key="submit_feedback"):
+    # 피드백을 처리하는 코드
+    with open('feedback.txt', 'a') as f:
+        f.write(user_feedback + '\n')
+    st.success("피드백이 제출되었습니다.")
