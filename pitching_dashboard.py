@@ -6,108 +6,14 @@ import numpy as np
 from glob import glob
 import data_concat
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", layout="wide")
 @st.cache_data
 def load_data():
     kdf, fdf = data_concat.data_concat()
     return kdf, fdf
-
 kdf, fdf = load_data()
-
-kdf['trial'] = kdf['trial'].astype(int)
-fdf['trial'] = fdf['trial'].astype(int)
-
-# 스트림릿 사이드바 설정
-unique_names = kdf['player'].unique()
-selected_name = st.sidebar.selectbox('Select Name', unique_names)
-filtered_df_by_name = kdf[kdf['player'] == selected_name]
-unique_dates = sorted(filtered_df_by_name['day'].unique())
-selected_date = st.sidebar.selectbox('Select Date', unique_dates)
-
-filtered_df_by_name_datas = kdf[(kdf['player'] == selected_name) &
-                                (kdf['day'] == selected_date)]
-unique_trial = sorted(filtered_df_by_name_datas['trial'].unique())
-selected_trial = st.sidebar.selectbox('Select Date', unique_trial)
-
-kine_filtered = kdf[(kdf['player'] == selected_name) & 
-                    (kdf['day'] == selected_date) &
-                    (kdf['trial'] == selected_trial)]
-
-force_filtered = fdf[(fdf['player'] == selected_name) & 
-                    (fdf['day'] == selected_date) &
-                    (fdf['trial'] == selected_trial)]
-
-kine_filtered.reset_index(inplace=True, drop=True)
-force_filtered.reset_index(inplace=True, drop=True)
-
-k_sr = 180
-k_kh_time  = kine_filtered['kh_time'][0]
-k_kh_time1 = kine_filtered['kh_time'][0] - k_kh_time
-k_fc_time  = kine_filtered['fc_time'][0] - k_kh_time
-k_mer_time = kine_filtered['mer_time'][0] - k_kh_time
-k_br_time  = kine_filtered['br_time'][0] - k_kh_time
-stride_length = round(kine_filtered['stride_length'][0])
-
-f_sr = 1080
-f_kh_time  = force_filtered['kh_time'][0] 
-f_kh_time1 = force_filtered['kh_time'][0]  - f_kh_time
-f_fc_time  = force_filtered['fc_time'][0]  - f_kh_time
-f_mer_time = force_filtered['mer_time'][0] - f_kh_time
-f_br_time  = force_filtered['br_time'][0]  - f_kh_time
-
-k_df = kine_filtered.iloc[k_kh_time:int(k_br_time + k_kh_time + (k_sr * 0.2)),:].reset_index(drop=True)
-f_df = force_filtered.iloc[f_kh_time:int(f_br_time + f_kh_time + (f_sr * 0.2)),:].reset_index(drop=True)
-
-f_lead_peak_z_time = f_df['lead_peak_z'][0] - f_kh_time
-f_rear_peak_z_time = np.where(f_df['REAR_FORCE_Z'] == f_df['REAR_FORCE_Z'].max())[0][0]
-force_peak_time = round((f_lead_peak_z_time - f_rear_peak_z_time) / 1080 , 4)
-
-f_rear_peak_y_time = np.where(f_df['REAR_FORCE_Y'] == f_df['REAR_FORCE_Y'].max())[0][0]
-f_lead_min_y_time  = f_df['lead_valley_y'][0] - f_kh_time
-
-k_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
-f_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
-
-k_len = len(k_df)
-k_time = np.arange(0,k_len/k_sr, 1/k_sr)
-k_time = k_time.round(3)
-
-f_len = len(f_df)
-f_time = np.arange(0,f_len/f_sr, 1/f_sr)
-f_time = f_time.round(3)
-# ===================================================================================
-# ============================= Using Data ==========================================
-ap_cols = {
-    'REAR_FORCE_Y' : ['Trail Leg' , 'blue'],
-    'LEAD_FORCE_Y' : ['Stride Leg', 'red'],
-}
-vt_cols = {
-    'REAR_FORCE_Z' : ['Trail Leg' , 'blue'],
-    'LEAD_FORCE_Z' : ['Stride Leg', 'red']
-}
-ks_cols = {
-    'PELVIS_ANGLUAR_VELOCITY_Z'        : ['PELVIS'   , 'red'],
-    'TORSO_ANGLUAR_VELOCITY_Z'         : ['TORSO'    , 'green'],
-    'LEAD_ELBOW_ANGULAR_VELOCITY_X'    : ['ELBOW'    , 'blue'],
-    'LEAD_SHOULDER_ANGULAR_VELOCITY_Z' : ['SHOULDER' , 'yellow'],
-}
-ang_cols = {
-    'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
-    'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
-    'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
-    'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
-    'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
-    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
-    'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
-    'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
-    'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
-}
-
-# ===================================================================================
-# ============================= DashBoard ===========================================
-st.title('KUM BASEBALL PITCHING REPORT')
-
 # ============================ 그래프 함수 정의 =========================================
+
 def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     title = 'GROUND REACTION FORCE (AP-AXIS)' if axis == 'ap' else 'GROUND REACTION FORCE (Vertical)'
     
@@ -338,12 +244,100 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
     
     return ks, fig
 
+
+kdf['trial'] = kdf['trial'].astype(int)
+fdf['trial'] = fdf['trial'].astype(int)
+
+# 스트림릿 사이드바 설정
+unique_names = kdf['player'].unique()
+selected_name = st.sidebar.selectbox('Select Name', unique_names)
+filtered_df_by_name = kdf[kdf['player'] == selected_name]
+unique_dates = sorted(filtered_df_by_name['day'].unique())
+selected_date = st.sidebar.selectbox('Select Date', unique_dates)
+
+filtered_df_by_name_datas = kdf[(kdf['player'] == selected_name) &
+                                (kdf['day'] == selected_date)]
+unique_trial = sorted(filtered_df_by_name_datas['trial'].unique())
+selected_trial = st.sidebar.selectbox('Select Date', unique_trial)
+
+kine_filtered = kdf[(kdf['player'] == selected_name) & 
+                    (kdf['day'] == selected_date) &
+                    (kdf['trial'] == selected_trial)]
+
+force_filtered = fdf[(fdf['player'] == selected_name) & 
+                    (fdf['day'] == selected_date) &
+                    (fdf['trial'] == selected_trial)]
+
+kine_filtered.reset_index(inplace=True, drop=True)
+force_filtered.reset_index(inplace=True, drop=True)
+
+k_sr = 180
+k_kh_time  = kine_filtered['kh_time'][0]
+k_kh_time1 = kine_filtered['kh_time'][0] - k_kh_time
+k_fc_time  = kine_filtered['fc_time'][0] - k_kh_time
+k_mer_time = kine_filtered['mer_time'][0] - k_kh_time
+k_br_time  = kine_filtered['br_time'][0] - k_kh_time
+stride_length = round(kine_filtered['stride_length'][0])
+
+f_sr = 1080
+f_kh_time  = force_filtered['kh_time'][0] 
+f_kh_time1 = force_filtered['kh_time'][0]  - f_kh_time
+f_fc_time  = force_filtered['fc_time'][0]  - f_kh_time
+f_mer_time = force_filtered['mer_time'][0] - f_kh_time
+f_br_time  = force_filtered['br_time'][0]  - f_kh_time
+
+k_df = kine_filtered.iloc[k_kh_time:int(k_br_time + k_kh_time + (k_sr * 0.2)),:].reset_index(drop=True)
+f_df = force_filtered.iloc[f_kh_time:int(f_br_time + f_kh_time + (f_sr * 0.2)),:].reset_index(drop=True)
+
+f_lead_peak_z_time = f_df['lead_peak_z'][0] - f_kh_time
+f_rear_peak_z_time = np.where(f_df['REAR_FORCE_Z'] == f_df['REAR_FORCE_Z'].max())[0][0]
+force_peak_time = round((f_lead_peak_z_time - f_rear_peak_z_time) / 1080 , 4)
+
+f_rear_peak_y_time = np.where(f_df['REAR_FORCE_Y'] == f_df['REAR_FORCE_Y'].max())[0][0]
+f_lead_min_y_time  = f_df['lead_valley_y'][0] - f_kh_time
+
+k_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
+f_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
+
+k_len = len(k_df)
+k_time = np.arange(0,k_len/k_sr, 1/k_sr)
+k_time = k_time.round(3)
+
+f_len = len(f_df)
+f_time = np.arange(0,f_len/f_sr, 1/f_sr)
+f_time = f_time.round(3)
+# ===================================================================================
+# ============================= Using Data ==========================================
+ap_cols = {
+    'REAR_FORCE_Y' : ['Trail Leg' , 'blue'],
+    'LEAD_FORCE_Y' : ['Stride Leg', 'red'],
+}
+vt_cols = {
+    'REAR_FORCE_Z' : ['Trail Leg' , 'blue'],
+    'LEAD_FORCE_Z' : ['Stride Leg', 'red']
+}
+ks_cols = {
+    'PELVIS_ANGLUAR_VELOCITY_Z'        : ['PELVIS'   , 'red'],
+    'TORSO_ANGLUAR_VELOCITY_Z'         : ['TORSO'    , 'green'],
+    'LEAD_ELBOW_ANGULAR_VELOCITY_X'    : ['ELBOW'    , 'blue'],
+    'LEAD_SHOULDER_ANGULAR_VELOCITY_Z' : ['SHOULDER' , 'yellow'],
+}
+ang_cols = {
+    'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
+    'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
+    'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
+    'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
+    'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
+    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
+    'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
+    'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
+    'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
+}
 # ============================ 그래프 및 시점 수치 =======================================
 force_ap_fig, force_ap_values = grf_plotly(f_df, ap_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='ap')
 force_vt_fig, force_vt_values = grf_plotly(f_df, vt_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='vt')
 kine_values, kine_fig = one_angle_plotly(k_df, ang_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
 kinematic_values, kinematic_fig = kinematic_sequence_plotly(k_df, ks_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
-
 force_ap_fig.update_layout(
     width=800,  # Set the width to your preference
     height=400  # Set the height to your preference
@@ -362,124 +356,152 @@ kinematic_fig.update_layout(
     width=800,
     height=400
 )
+# ===================================================================================
+# ============================= DashBoard ===========================================
+page_tab1, page_tab2 = st.tabs(["데이터 보기", "피드백 남기기"])
 
-st.markdown("""
-    <style>
-    .kinetics-parameters {
-        background-color: #26282F; /* 박스의 배경 색상 */
-        color: white; /* 텍스트 색상 */
-        padding: 2px; /* 안쪽 여백 */
-        border-radius: 10px; /* 모서리 둥글기 */
+with page_tab1:
+    st.title("KMU BASEBALL PITCHING REPORT")
+    
+    st.markdown("""
+        <style>
+        .kinetics-parameters {
+            background-color: #26282F; /* 박스의 배경 색상 */
+            color: white; /* 텍스트 색상 */
+            padding: 2px; /* 안쪽 여백 */
+            border-radius: 10px; /* 모서리 둥글기 */
+        }
+        </style>
+        <div class="kinetics-parameters">
+            <h2>분석 구간</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.image('image/analysis.png', use_column_width=True)
+
+    st.markdown("""
+        <style>
+        .kinetics-parameters {
+            background-color: #26282F; /* 박스의 배경 색상 */
+            color: white; /* 텍스트 색상 */
+            padding: 2px; /* 안쪽 여백 */
+            border-radius: 10px; /* 모서리 둥글기 */
+        }
+        </style>
+        <div class="kinetics-parameters">
+            <h2>ENERGY FLOW</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # KINEMATICS PARAMETERS
+    st.markdown("""
+        <style>
+        .kinetics-parameters {
+            background-color: #26282F; /* 박스의 배경 색상 */
+            color: white; /* 텍스트 색상 */
+            padding: 2px; /* 안쪽 여백 */
+            border-radius: 10px; /* 모서리 둥글기 */
+        }
+        </style>
+        <div class="kinetics-parameters">
+            <h2>KINEMATICS PARAMETERS</h2>
+        </div>
+    """, unsafe_allow_html=True)
+    st.subheader('Kinematic Sequence')
+    col1, col2 = st.columns([1,2.8])
+    with col1:
+        st.image('image/kinematic.png', use_column_width=True)
+    with col2:
+        st.plotly_chart(kinematic_fig, use_container_width=True)
+
+    ang_cols = {
+        'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
+        'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
+        'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
+        'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
+        'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
+        'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
+        'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
+        'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
+        'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
     }
-    </style>
-    <div class="kinetics-parameters">
-        <h2>분석 구간</h2>
-    </div>
-""", unsafe_allow_html=True)
+    st.subheader('Ball Release')
+    tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
+    br_taps = st.tabs(['SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
+    for tab, key in zip(br_taps, tabs_keys):
+        with tab:
+            col1, col2 = st.columns([1,2.8])
+            with col1:
+                st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+            with col2:
+                st.plotly_chart(kine_fig[key], use_container_width=True)
 
-st.image('image/analysis.png', use_column_width=True)
+        
 
-st.markdown("""
-    <style>
-    .kinetics-parameters {
-        background-color: #26282F; /* 박스의 배경 색상 */
-        color: white; /* 텍스트 색상 */
-        padding: 2px; /* 안쪽 여백 */
-        border-radius: 10px; /* 모서리 둥글기 */
-    }
-    </style>
-    <div class="kinetics-parameters">
-        <h2>ENERGY FLOW</h2>
-    </div>
-""", unsafe_allow_html=True)
+    st.subheader('ARM ACCELERATION')
+                
+    st.subheader('ARM COCKING')
+            
+    st.subheader('STRIDE')
 
-# KINEMATICS PARAMETERS
-st.markdown("""
-    <style>
-    .kinetics-parameters {
-        background-color: #26282F; /* 박스의 배경 색상 */
-        color: white; /* 텍스트 색상 */
-        padding: 2px; /* 안쪽 여백 */
-        border-radius: 10px; /* 모서리 둥글기 */
-    }
-    </style>
-    <div class="kinetics-parameters">
-        <h2>KINEMATICS PARAMETERS</h2>
-    </div>
-""", unsafe_allow_html=True)
-st.subheader('Kinematic Sequence')
-col1, col2 = st.columns([1,2.8])
-with col1:
-    st.image('image/kinematic.png', use_column_width=True)
-with col2:
-    st.plotly_chart(kinematic_fig, use_container_width=True)
+    # KINETICS PARAMETERS
+    st.markdown("""
+        <style>
+        .kinetics-parameters {
+            background-color: #26282F; /* 박스의 배경 색상 */
+            color: white; /* 텍스트 색상 */
+            padding: 2px; /* 안쪽 여백 */
+            border-radius: 10px; /* 모서리 둥글기 */
+        }
+        </style>
+        <div class="kinetics-parameters">
+            <h2>KINETICS PARAMETERS</h2>
+        </div>
+    """, unsafe_allow_html=True)
 
-ang_cols = {
-    'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
-    'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
-    'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
-    'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
-    'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
-    'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
-    'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
-    'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
-    'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
-}
-st.subheader('Ball Release')
-tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
-br_taps = st.tabs(['SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
-for tab, key in zip(br_taps, tabs_keys):
-    with tab:
+    kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS'])
+
+    with kinetics_tab[0]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+            st.image('image/GRF_Y.png', use_column_width=True)
         with col2:
-            st.plotly_chart(kine_fig[key], use_container_width=True)
+            st.plotly_chart(force_ap_fig, use_container_width=True)
 
-    
+    with kinetics_tab[1]:
+        col1, col2 = st.columns([1,2.8])
+        with col1:
+            st.image('image/GRF_Z.png', use_column_width=True)
+        with col2:
+            st.plotly_chart(force_vt_fig, use_container_width=True)
+      
+with page_tab2:  
+    # 사용자 피드백 받기
+    # Streamlit 세션 상태 초기화
+    # 각 선택에 따른 키 생성 함수
+    def create_key(player, date, trial):
+        return f"{player}_{date}_{trial}_feedback"
 
-st.subheader('ARM ACCELERATION')
-            
-st.subheader('ARM COCKING')
-        
-st.subheader('STRIDE')
+    # 피드백 저장 함수
+    def save_feedback(key, feedback):
+        st.session_state[key] = feedback
 
-# KINETICS PARAMETERS
-st.markdown("""
-    <style>
-    .kinetics-parameters {
-        background-color: #26282F; /* 박스의 배경 색상 */
-        color: white; /* 텍스트 색상 */
-        padding: 2px; /* 안쪽 여백 */
-        border-radius: 10px; /* 모서리 둥글기 */
-    }
-    </style>
-    <div class="kinetics-parameters">
-        <h2>KINETICS PARAMETERS</h2>
-    </div>
-""", unsafe_allow_html=True)
+    # 피드백 제출 처리
+    def handle_feedback_submit(player, date, trial):
+        key = create_key(player, date, trial)
+        feedback = st.session_state.feedback
+        save_feedback(key, feedback)
+        st.success("피드백이 저장되었습니다.")
 
-kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS'])
+    # 피드백 입력
+    feedback_input = st.text_area("피드백을 남겨주세요:", key='feedback')
 
-with kinetics_tab[0]:
-    col1, col2 = st.columns([1,2.8])
-    with col1:
-        st.image('image/GRF_Y.png', use_column_width=True)
-    with col2:
-        st.plotly_chart(force_ap_fig, use_container_width=True)
+    # 피드백 제출 버튼
+    if st.button('제출'):
+        handle_feedback_submit(selected_name, selected_date, selected_trial)
 
-with kinetics_tab[1]:
-    col1, col2 = st.columns([1,2.8])
-    with col1:
-        st.image('image/GRF_Z.png', use_column_width=True)
-    with col2:
-        st.plotly_chart(force_vt_fig, use_container_width=True)
-        
-# 사용자 피드백 받기
-user_feedback = st.text_input("여기에 피드백을 작성하세요", "", key="feedback_input")
-
-if st.button("제출", key="submit_feedback"):
-    # 피드백을 처리하는 코드
-    with open('feedback.txt', 'a') as f:
-        f.write(user_feedback + '\n')
-    st.success("피드백이 제출되었습니다.")
+    # 저장된 피드백 표시
+    feedback_key = create_key(selected_name, selected_date, selected_trial)
+    if feedback_key in st.session_state:
+        st.subheader('저장된 피드백')
+        st.write(st.session_state[feedback_key])
