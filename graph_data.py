@@ -2,6 +2,14 @@ import plotly.graph_objs as go
 import numpy as np
 import streamlit as st
 
+username_passward = {
+    "kookmin" : "640511",
+    "JeremiahLo" : "640511",
+    "Kangmingu" : "640511",
+    "jereniahLo" : "640511",
+}
+
+
 def transform_list(nums):
     indexed_nums = list(enumerate(nums))
     indexed_nums.sort(key=lambda x: x[1])
@@ -312,13 +320,6 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
     
     return ks, fig
 
-username_passward = {
-    "kookmin" : "640511",
-    "JeremiahLo" : "640511",
-    "Kangmingu" : "640511",
-    "jereniahLo" : "640511",
-}
-
 def check_credentials(username, passward):
     if username in username_passward and passward == username_passward[username]:
         st.session_state['authenticated'] = True    
@@ -334,3 +335,4 @@ def show_login_form():
         username = st.text_input("ID", key='login_username')
         password = st.text_input("PASSWORD", type="password", key='login_password')
         login_button = st.button("login", on_click=check_credentials, args=(username, password))
+        
