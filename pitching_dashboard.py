@@ -8,8 +8,7 @@ import data_concat
 from graph_data import transform_list, grf_plotly, one_angle_plotly, kinematic_sequence_plotly
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
-                   layout="wide",
-                   theme={"base": "dark"}  # 다크 모드를 기본으로 설정
+                   layout="wide"
                     )
 @st.cache_data
 def load_data():
