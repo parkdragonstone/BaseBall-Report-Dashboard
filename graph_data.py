@@ -38,7 +38,7 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     traces = []
     for col, info in cols.items():
         df = data[col]
-        trace = go.Scatter(x=time, y=df, mode='lines', name=info[0], line=dict(color=info[-1]))
+        trace = go.Scatter(x=time, y=df, mode='lines', name=info[0], line=dict(color=info[-1],width=4))
         traces.append(trace)
         
         # Perform and store the calculations for max, min and specific times
@@ -64,23 +64,25 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
             'y0': 0,
             'x1': time[event_time],
             'y1': 1,
+            'opacity' : 0.5,
             'line': {
-                'color': 'black',
-                'width': 2,
+                'color': 'cyan',
+                'width': 4,
                 'dash': 'dash',
             }
         } for event_time in event_times
     ]
     annotations = [
         {
-            'x': time[event_time + 1],
-            'y': 0.95,
+            'x': time[event_time + 12],
+            'y': 1,
             'xref': 'x',
             'yref': 'paper',
             'text': label,
             'showarrow': False,
             'font': {
-                'color': 'white'
+                'color': 'cyan',
+                'size' : 16
             },
             'textangle': -90
         } for event_time, label in zip(event_times, event_names)
@@ -141,7 +143,7 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
         else:
             y_label = 'Distance [CM]'
         # Create the trace for the main data line
-        trace = go.Scatter(x=time, y=df, mode='lines', name=cols[col], line=dict(color='firebrick'))
+        trace = go.Scatter(x=time, y=df, mode='lines', name=cols[col], line=dict(color='firebrick', width=4))
         traces = [trace]
         
         ang['kh_time'][col]   = round(df[k_kh_time], 2)
@@ -174,23 +176,25 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
                 'y0': 0,
                 'x1': time[event_time],
                 'y1': 1,
+                'opacity' : 0.5,
                 'line': {
-                    'color': 'black',
-                    'width': 2,
+                    'color': 'cyan',
+                    'width': 4,
                     'dash': 'dash',
                 }
             } for event_time in event_times
         ]
         annotations = [
             {
-                'x': time[event_time + 1],
-                'y': 0.95,
+                'x': time[event_time + 2],
+                'y': 1,
                 'xref': 'x',
                 'yref': 'paper',
                 'text': label,
                 'showarrow': False,
                 'font': {
-                    'color': 'white'
+                    'color': 'cyan',
+                    'size' : 16
                 },
                 'textangle': -90
             } for event_time, label in zip(event_times, event_names)
@@ -224,6 +228,7 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
         figures[col] = fig
         
     return ang, figures
+
 def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
     ks = {
         'peak' : {},
@@ -238,7 +243,8 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
             y=data[col], 
             mode='lines', 
             name=ks_cols[col][0],
-            line=dict(color=ks_cols[col][-1])
+            opacity=0.9,
+            line=dict(color=ks_cols[col][-1],width= 3), 
         )
         traces.append(trace)
         ks['peak'][col] = round(data[col].max(), 2)
@@ -255,23 +261,25 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
             'y0': 0,
             'x1': time[event_time],
             'y1': 1,
+            'opacity' : 0.5,
             'line': {
-                'color': 'black',
-                'width': 2,
+                'color': 'cyan',
+                'width': 3,
                 'dash': 'dash',
             }
         } for event_time in event_times
     ]
     annotations = [
         {
-            'x': time[event_time + 1],
-            'y': 0.95,
+            'x': time[event_time + 2],
+            'y': 1,
             'xref': 'x',
             'yref': 'paper',
             'text': label,
             'showarrow': False,
             'font': {
-                'color': 'white'
+                'color': 'cyan',
+                'size' : 16
             },
             'textangle': -90
         } for event_time, label in zip(event_times, event_names)

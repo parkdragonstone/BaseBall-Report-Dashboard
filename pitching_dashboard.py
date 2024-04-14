@@ -228,15 +228,16 @@ with page_tab1:
     # 분석 구간
     st.markdown("""
         <style>
-        .kinetics-parameters {
+        .event_phase-header {
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
-            padding: 2px; /* 안쪽 여백 */
+            padding: 2; /* 안쪽 여백 */
             border-radius: 0px; /* 모서리 둥글기 */
+            padding-left: 20px;
         }
         </style>
-        <div class="kinetics-parameters">
-            <h2>분석 구간</h2>
+        <div class="event_phase-header">
+            <h2>EVENTS & PHASES</h2>
         </div>
     """, unsafe_allow_html=True)
     st.image('image/analysis.png', use_column_width=True)
@@ -246,14 +247,15 @@ with page_tab1:
     # ENERGY FLOW
     st.markdown("""
         <style>
-        .kinetics-parameters {
+        .energy_flow-parameters {
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
             border-radius: 0px; /* 모서리 둥글기 */
+            padding-left: 20px;
         }
         </style>
-        <div class="kinetics-parameters">
+        <div class="energy_flow-parameters">
             <h2>ENERGY FLOW</h2>
         </div>
     """, unsafe_allow_html=True)
@@ -262,14 +264,15 @@ with page_tab1:
     # KINEMATICS PARAMETERS
     st.markdown("""
         <style>
-        .kinetics-parameters {
+        .kinematics-parameters {
             background-color: #26282F; /* 박스의 배경 색상 */
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
             border-radius: 0px; /* 모서리 둥글기 */
+            padding-left: 20px;
         }
         </style>
-        <div class="kinetics-parameters">
+        <div class="kinematics-parameters">
             <h2>KINEMATICS PARAMETERS</h2>
         </div>
     """, unsafe_allow_html=True)
@@ -430,6 +433,7 @@ with page_tab1:
             color: white; /* 텍스트 색상 */
             padding: 2px; /* 안쪽 여백 */
             border-radius: 0px; /* 모서리 둥글기 */
+            padding-left: 20px;
         }
         </style>
         <div class="kinetics-parameters">
