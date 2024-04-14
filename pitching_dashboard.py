@@ -24,13 +24,16 @@ def transform_list(nums):
         transformed[indexed_nums[i][0]] = current_rank
     return transformed
 def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
-    title = 'GROUND REACTION FORCE (AP-AXIS)' if axis == 'ap' else 'GROUND REACTION FORCE (Vertical)'
-    
+    if axis == 'ap':
+        title = 'GROUND REACTION FORCE (AP-AXIS)'
+    elif axis == 'result':
+        title = 'GROUND REACTION FORCE (RESULTANT)'
+    else:
+        title = 'GROUND REACTION FORCE (Vertical)'
+
     y_values = {
         'max'       : {},
-        'max_frame' : {},
-        'min'       : {},
-        'min_frame' : {},
+        'max_time' : {},
         'kh_time'   : {},
         'fc_time'   : {},
         'mer_time'  : {},
@@ -49,10 +52,12 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
         y_values['fc_time'][col] = round(df.iloc[fc_time], 2)
         y_values['mer_time'][col] = round(df.iloc[mer_time], 2)
         y_values['br_time'][col] = round(df.iloc[br_time], 2)
-        y_values['max'][col] = round(df.max(), 2)
-        y_values['max_frame'][col] = df.idxmax()
-        y_values['min'][col] = round(df.min(), 2)
-        y_values['min_frame'][col] = df.idxmin()
+        if col == 'LEAD_FORCE_Y':
+            y_values['max'][col] = round(df.min(), 2)
+            y_values['max_time'][col] = np.where(df == df.min())[0][0]
+        else:
+            y_values['max'][col] = round(df.max(), 2)
+            y_values['max_time'][col] = np.where(df == df.max())[0][0]
 
     event_times = [kh_time, fc_time, mer_time, br_time]
     event_names = ['KH', 'FC', 'MER', 'BR']
@@ -332,7 +337,7 @@ k_br_time  = kine_filtered['br_time'][0] - k_kh_time
 stride_length = round(float(kine_filtered['stride_length'][0]))
 ball_speed = round(float(kine_filtered['ball_speed'][0]) * 1.6)
 
-f_sr = 1080
+f_sr = k_sr * 6
 f_kh_time  = force_filtered['kh_time'][0] 
 f_kh_time1 = force_filtered['kh_time'][0]  - f_kh_time
 f_fc_time  = force_filtered['fc_time'][0]  - f_kh_time
@@ -352,13 +357,8 @@ f_lead_min_y_time  = f_df['lead_valley_y'][0] - f_kh_time
 k_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
 f_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
 
-k_len = len(k_df)
-k_time = np.arange(0,k_len/k_sr, 1/k_sr)
-k_time = k_time.round(3)
-
-f_len = len(f_df)
-f_time = np.arange(0,f_len/f_sr, 1/f_sr)
-f_time = f_time.round(3)
+k_time = k_df['TIME']
+f_time = f_df['TIME']
 # ===================================================================================
 # ============================= Using Data ==========================================
 ap_cols = {
@@ -368,6 +368,10 @@ ap_cols = {
 vt_cols = {
     'REAR_FORCE_Z' : ['Trail Leg' , 'blue'],
     'LEAD_FORCE_Z' : ['Stride Leg', 'red']
+}
+result_cols = {
+    'REAR_RESULT' : ['Trail Leg' , 'blue'],
+    'LEAD_RESULT' : ['Stride Leg', 'red']
 }
 ks_cols = {
     'PELVIS_ANGLUAR_VELOCITY_Z'        : ['PELVIS'   , 'red'],
@@ -389,6 +393,7 @@ ang_cols = {
 # ============================ 그래프 및 시점 수치 =======================================
 force_ap_fig, force_ap_values = grf_plotly(f_df, ap_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='ap')
 force_vt_fig, force_vt_values = grf_plotly(f_df, vt_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='vt')
+force_result_fig, force_result_values = grf_plotly(f_df, result_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='result')
 kine_values, kine_fig = one_angle_plotly(k_df, ang_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
 kinematic_values, kinematic_fig = kinematic_sequence_plotly(k_df, ks_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
 
@@ -397,6 +402,10 @@ force_ap_fig.update_layout(
     height=400  # Set the height to your preference
 )
 force_vt_fig.update_layout(
+    width=800,  # Set the width to your preference
+    height=400  # Set the height to your preference
+)
+force_result_fig.update_layout(
     width=800,  # Set the width to your preference
     height=400  # Set the height to your preference
 )
@@ -417,10 +426,10 @@ peak_sho = round(kinematic_values['peak']['LEAD_SHOULDER_ANGULAR_VELOCITY_Z']);t
 
 total_time = k_br_time+1 - k_fc_time
 
-pel_time = round(100 * (time_pel+1 - k_fc_time) / total_time)
-tor_time = round(100 * (time_tor+1 - k_fc_time) / total_time)
-elb_time = round(100 * (time_elb+1 - k_fc_time) / total_time)
-sho_time = round(100 * (time_sho+1 - k_fc_time) / total_time)
+pel_time = round(100 * (time_pel - k_fc_time) / total_time)
+tor_time = round(100 * (time_tor - k_fc_time) / total_time)
+elb_time = round(100 * (time_elb - k_fc_time) / total_time)
+sho_time = round(100 * (time_sho - k_fc_time) / total_time)
 
 tor_gain = round(peak_tor / peak_pel,2)
 upper_gain = round(peak_elb / peak_tor,2)
@@ -561,23 +570,110 @@ with page_tab1:
             <h2>KINETICS PARAMETERS</h2>
         </div>
     """, unsafe_allow_html=True)
-
-    kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS'])
-
+    kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS','RESULTANT'])
+    
+    metrics = ['kh_time','fc_time','mer_time','br_time','max','max_time']
+    labels = ['At KH','At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
+    
     with kinetics_tab[0]:
         col1, col2 = st.columns([1,2.8])
         with col1:
             st.image('image/GRF_Y.png', use_column_width=True)
         with col2:
             st.plotly_chart(force_ap_fig, use_container_width=True)
+        
+        leg = ['Trail Leg', 'Stride Leg']
+        force_key = ['REAR_FORCE_Y','LEAD_FORCE_Y']
+        
+        for key in force_key:    
+            values = [force_ap_values[m][key] for m in metrics]
+            color = ap_cols[key][-1]
 
+            cols = st.columns([1,1,1,1,1,1,1])
+            with cols[0]:
+                st.markdown(f"<h1 style='font-size: 24px;'>{leg[0]}</h1>", unsafe_allow_html=True)  # Change 24px as needed
+                leg.pop(0)
+                
+            for i, (col, label, value) in enumerate(zip(cols[1:], labels, values)):
+                with col:
+                    if metrics[i] == 'max':  # Highlight the 'At BR' value in red
+                        # Customize as per your actual styling needs
+                        st.markdown(
+                            f"<div style='text-align: left;'><span style='font-size: 15px; color:{color};'>{label}</span><br><span style='color: {color}; font-size: 36px;'>{value} %BW</span></div>",
+                            unsafe_allow_html=True
+                        )
+                    elif metrics[i] in ['kh_time','fc_time','mer_time','br_time']:
+                        # Use Streamlit's metric for the rest of the values
+                        st.metric(label=label, value=f"{value} %BW", delta=None) 
+                    elif metrics[i] == 'max_time':
+                        st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
+            
     with kinetics_tab[1]:
         col1, col2 = st.columns([1,2.8])
         with col1:
             st.image('image/GRF_Z.png', use_column_width=True)
         with col2:
             st.plotly_chart(force_vt_fig, use_container_width=True)
-      
+        
+        
+        force_key = ['REAR_FORCE_Z','LEAD_FORCE_Z']
+        leg = ['Trail Leg', 'Stride Leg']
+        for key in force_key:    
+            values = [force_vt_values[m][key] for m in metrics]
+            color = vt_cols[key][-1]
+
+            cols = st.columns([1,1,1,1,1,1,1])
+            with cols[0]:
+                st.markdown(f"<h1 style='font-size: 24px;'>{leg[0]}</h1>", unsafe_allow_html=True)  # Change 24px as needed
+                leg.pop(0)
+                
+            for i, (col, label, value) in enumerate(zip(cols[1:], labels, values)):
+                with col:
+                    if metrics[i] == 'max':  # Highlight the 'At BR' value in red
+                        # Customize as per your actual styling needs
+                        st.markdown(
+                            f"<div style='text-align: left;'><span style='font-size: 15px; color:{color};'>{label}</span><br><span style='color: {color}; font-size: 36px;'>{value} %BW</span></div>",
+                            unsafe_allow_html=True
+                        )
+                    elif metrics[i] in ['kh_time','fc_time','mer_time','br_time']:
+                        # Use Streamlit's metric for the rest of the values
+                        st.metric(label=label, value=f"{value} %BW", delta=None) 
+                    elif metrics[i] == 'max_time':
+                        st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
+
+    with kinetics_tab[2]:
+        col1, col2 = st.columns([1,2.8])
+        with col1:
+            st.image('image/GRF_Z.png', use_column_width=True)
+        with col2:
+            st.plotly_chart(force_result_fig, use_container_width=True)
+        
+        
+        force_key = ['REAR_RESULT','LEAD_RESULT']
+        leg = ['Trail Leg', 'Stride Leg']
+        for key in force_key:    
+            values = [force_result_values[m][key] for m in metrics]
+            color = result_cols[key][-1]
+
+            cols = st.columns([1,1,1,1,1,1,1])
+            with cols[0]:
+                st.markdown(f"<h1 style='font-size: 24px;'>{leg[0]}</h1>", unsafe_allow_html=True)  # Change 24px as needed
+                leg.pop(0)
+                
+            for i, (col, label, value) in enumerate(zip(cols[1:], labels, values)):
+                with col:
+                    if metrics[i] == 'max':  # Highlight the 'At BR' value in red
+                        # Customize as per your actual styling needs
+                        st.markdown(
+                            f"<div style='text-align: left;'><span style='font-size: 15px; color:{color};'>{label}</span><br><span style='color: {color}; font-size: 36px;'>{value} %BW</span></div>",
+                            unsafe_allow_html=True
+                        )
+                    elif metrics[i] in ['kh_time','fc_time','mer_time','br_time']:
+                        # Use Streamlit's metric for the rest of the values
+                        st.metric(label=label, value=f"{value} %BW", delta=None) 
+                    elif metrics[i] == 'max_time':
+                        st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
+    
 with page_tab2:  
     # 사용자 피드백 받기
     # Streamlit 세션 상태 초기화
