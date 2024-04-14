@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 import numpy as np
+import streamlit as st
 
 def transform_list(nums):
     indexed_nums = list(enumerate(nums))
@@ -11,6 +12,7 @@ def transform_list(nums):
             current_rank += 1
         transformed[indexed_nums[i][0]] = current_rank
     return transformed
+
 def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     if axis == 'ap':
         title = 'GROUND REACTION FORCE (AP-AXIS)'
@@ -309,3 +311,26 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
     fig = go.Figure(data=traces, layout=layout)
     
     return ks, fig
+
+username_passward = {
+    "kookmin" : "640511",
+    "JeremiahLo" : "640511",
+    "Kangmingu" : "640511",
+    "jereniahLo" : "640511",
+}
+
+def check_credentials(username, passward):
+    if username in username_passward and passward == username_passward[username]:
+        st.session_state['authenticated'] = True    
+        st.session_state['selected_name'] = username
+    else:
+        st.session_state['authenticated'] = False
+        st.error('ID나 PASSWORD가 잘못되었습니다')
+
+# 인증되지 않았을 때 로그인 폼을 보여주는 함수
+def show_login_form():
+    with st.container():
+        st.write("Login")
+        username = st.text_input("ID", key='login_username')
+        password = st.text_input("PASSWORD", type="password", key='login_password')
+        login_button = st.button("login", on_click=check_credentials, args=(username, password))
