@@ -107,11 +107,12 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
         showlegend=True,
         shapes = shapes,
         legend=dict(
-                    x=1, # Adjust this value to move the legend left or right
-                    y=1, # Adjust this value to move the legend up or down
-                    xanchor='right', # Anchor the legend's right side at the x position
-                    yanchor='top', # Anchor the legend's top at the y position
-                    bgcolor='rgb(43,48,61)' # Set a background color with a bit of transparency
+                    # x=1, # Adjust this value to move the legend left or right
+                    # y=1, # Adjust this value to move the legend up or down
+                    # xanchor='right', # Anchor the legend's right side at the x position
+                    # yanchor='top', # Anchor the legend's top at the y position
+                    # bgcolor='rgb(43,48,61)', # Set a background color with a bit of transparency
+                    orientation = 'h',
                     ),
         margin=dict(l=40, r=40, t=40, b=40),
         height=600,
@@ -549,7 +550,6 @@ with page_tab1:
                     elif metrics[i] == 'max_time':
                         st.metric(label=label, value=f"{value} %", delta=None) 
         
-
     st.subheader('ARM ACCELERATION')
                 
     st.subheader('ARM COCKING')
@@ -571,7 +571,6 @@ with page_tab1:
         </div>
     """, unsafe_allow_html=True)
     kinetics_tab = st.tabs(['AP AXIS', 'VERTICAL AXIS','RESULTANT'])
-    
     metrics = ['kh_time','fc_time','mer_time','br_time','max','max_time']
     labels = ['At KH','At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
     
@@ -644,7 +643,7 @@ with page_tab1:
     with kinetics_tab[2]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image('image/GRF_Z.png', use_column_width=True)
+            st.image('image/GRF_R.png', use_column_width=True)
         with col2:
             st.plotly_chart(force_result_fig, use_container_width=True)
         
