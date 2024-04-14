@@ -13,7 +13,16 @@ def load_data():
     return kdf, fdf
 kdf, fdf = load_data()
 # ============================ 그래프 함수 정의 =========================================
-
+def transform_list(nums):
+    indexed_nums = list(enumerate(nums))
+    indexed_nums.sort(key=lambda x: x[1])
+    transformed = [0] * len(nums)
+    current_rank = 1
+    for i in range(len(nums)):
+        if i > 0 and indexed_nums[i][1] != indexed_nums[i-1][1]:
+            current_rank += 1
+        transformed[indexed_nums[i][0]] = current_rank
+    return transformed
 def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     title = 'GROUND REACTION FORCE (AP-AXIS)' if axis == 'ap' else 'GROUND REACTION FORCE (Vertical)'
     
@@ -45,24 +54,38 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
         y_values['min'][col] = round(df.min(), 2)
         y_values['min_frame'][col] = df.idxmin()
 
-    # Adding reference lines and annotations
-    reference_lines = []
-    annotations = []
-
-    # Add vertical lines and annotations for key events
-    for key_time, description in zip([kh_time, fc_time, mer_time, br_time],
-                                     ['KH', 'FC', 'MER', 'BR']):
-        reference_lines.append(
-            go.Scatter(x=[time[key_time], time[key_time]], y=[data[cols.keys()].min().min(), data[cols.keys()].max().max()],
-                       mode='lines', line=dict(color='black', width=2, dash='dash'),
-                       showlegend=False)
-        )
-        annotations.append(
-            dict(x=time[key_time + 2], y=0.95, xref='x', yref='paper', showarrow=False,
-                 text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
-    
-                 )
-        )
+    event_times = [kh_time, fc_time, mer_time, br_time]
+    event_names = ['KH', 'FC', 'MER', 'BR']
+    shapes = [
+        {
+            'type': 'line',
+            'xref': 'x',
+            'yref': 'paper',
+            'x0': time[event_time],
+            'y0': 0,
+            'x1': time[event_time],
+            'y1': 1,
+            'line': {
+                'color': 'black',
+                'width': 2,
+                'dash': 'dash',
+            }
+        } for event_time in event_times
+    ]
+    annotations = [
+        {
+            'x': time[event_time + 1],
+            'y': 0.95,
+            'xref': 'x',
+            'yref': 'paper',
+            'text': label,
+            'showarrow': False,
+            'font': {
+                'color': 'white'
+            },
+            'textangle': -90
+        } for event_time, label in zip(event_times, event_names)
+    ]
 
     # Update the layout with additional elements
     layout = go.Layout(
@@ -77,6 +100,7 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
                     zeroline=False
                 ),
         showlegend=True,
+        shapes = shapes,
         legend=dict(
                     x=1, # Adjust this value to move the legend left or right
                     y=1, # Adjust this value to move the legend up or down
@@ -92,18 +116,15 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     )
 
     # Create the figure
-    fig = go.Figure(data=traces + reference_lines, layout=layout)
+    fig = go.Figure(data=traces, layout=layout)
 
     return fig, y_values
 def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
     ang = {
         'max'       : {},
-        'max_frame' : {},
-        'min'       : {},
-        'min_frame' : {},
+        'max_time' : {},
         'kh_time'   : {},
         'fc_time'   : {},
-        'fp_time'   : {},
         'mer_time'  : {},
         'br_time'   : {},
     }
@@ -126,34 +147,48 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
         ang['mer_time'][col]  = round(df[k_mer_time], 2)
         ang['br_time'][col]   = round(df[k_br_time], 2)
         ang['max'][col]       = round(df.max(), 2)
-        ang['max_frame'][col] = np.where(df == df.max())[0][0]
-        ang['min'][col]       = round(df.min(), 2)
-        ang['min_frame'][col] = np.where(df == df.min())[0][0]
+        ang['max_time'][col] = np.where(df == df.max())[0][0]
         
         if col in ['TORSO_ANGLE_Y','LEAD_ELBOW_ANGLE_X','LEAD_SHOULDER_ANGLE_Y','LEAD_SHOULDER_ANGLE_Z','LEAD_KNEE_ANGULAR_VELOCITY_X']:
             ang['max'][col]  = round(df[k_fc_time-40:k_br_time+15].max(), 2)
-            ang['max_frame'][col] = np.where(df == df[k_fc_time-40:k_br_time+15].max())[0][0]
+            ang['max_time'][col] = np.where(df == df[k_fc_time-40:k_br_time+15].max())[0][0]
 
         elif col in ['LEAD_KNEE_ANGLE_X']:
             ang['max'][col]  = round(df[k_fc_time:k_br_time+1].max(), 2)
-            ang['max_frame'][col] = np.where(df == df[k_fc_time:k_br_time+1].max())[0][0]
+            ang['max_time'][col] = np.where(df == df[k_fc_time:k_br_time+1].max())[0][0]
         
-        reference_lines =[]
-        annotations = []
-        
-        for key_time, description in zip([k_kh_time, k_fc_time, k_mer_time, k_br_time],
-                                     ['KH', 'FC', 'MER', 'BR']):
-            
-            reference_lines.append(
-            go.Scatter(x=[time[key_time], time[key_time]], y=[df.min(), df.max()],
-                       mode='lines', line=dict(color='black', width=2, dash='dash'),
-                       showlegend=False)
-        )
-            annotations.append(
-            dict(x=time[key_time + 2], y=0.95, xref='x', yref='paper', showarrow=False,
-                 text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
-                 )
-        )
+        event_times = [k_kh_time, k_fc_time, k_mer_time, k_br_time]
+        event_names = ['KH', 'FC', 'MER', 'BR']
+        shapes = [
+            {
+                'type': 'line',
+                'xref': 'x',
+                'yref': 'paper',
+                'x0': time[event_time],
+                'y0': 0,
+                'x1': time[event_time],
+                'y1': 1,
+                'line': {
+                    'color': 'black',
+                    'width': 2,
+                    'dash': 'dash',
+                }
+            } for event_time in event_times
+        ]
+        annotations = [
+            {
+                'x': time[event_time + 1],
+                'y': 0.95,
+                'xref': 'x',
+                'yref': 'paper',
+                'text': label,
+                'showarrow': False,
+                'font': {
+                    'color': 'white'
+                },
+                'textangle': -90
+            } for event_time, label in zip(event_times, event_names)
+        ]
         
         # Define the layout
         layout = go.Layout(
@@ -169,6 +204,7 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
                         zeroline=False,
                         ),                        
             showlegend=False,
+            shapes =shapes,
             margin=dict(l=40, r=40, t=40, b=40),
             height=600,
             plot_bgcolor='rgb(43,48,61)',
@@ -176,7 +212,7 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
         )
         
         # Create the figure and add the traces to it
-        fig = go.Figure(data=traces + reference_lines, layout=layout)
+        fig = go.Figure(data=traces, layout=layout)
         
         # Store the figure in the dictionary
         figures[col] = fig
@@ -200,26 +236,41 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
         )
         traces.append(trace)
         ks['peak'][col] = round(data[col].max(), 2)
-        ks['time'][col] = time[data[col].idxmax()]
+        ks['time'][col] = np.where(data[col] == data[col].max())[0][0]
     
-    
-    # Standard event lines
-    reference_lines =[]
-    annotations = []
-    
-    for key_time, description in zip([k_kh_time, k_fc_time, k_mer_time, k_br_time],
-                                    ['KH', 'FC', 'MER', 'BR']):
-        
-        reference_lines.append(
-        go.Scatter(x=[time[key_time], time[key_time]], y=[data[ks_cols.keys()].min().min(), data[ks_cols.keys()].max().max()],
-                    mode='lines', line=dict(color='black', width=2, dash='dash'),
-                    showlegend=False)
-    )
-        annotations.append(
-        dict(x=time[key_time + 2], y=0.95, xref='x', yref='paper', showarrow=False,
-                text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
-                )
-    )
+    event_times = [k_kh_time, k_fc_time, k_mer_time, k_br_time]
+    event_names = ['KH', 'FC', 'MER', 'BR']
+    shapes = [
+        {
+            'type': 'line',
+            'xref': 'x',
+            'yref': 'paper',
+            'x0': time[event_time],
+            'y0': 0,
+            'x1': time[event_time],
+            'y1': 1,
+            'line': {
+                'color': 'black',
+                'width': 2,
+                'dash': 'dash',
+            }
+        } for event_time in event_times
+    ]
+    annotations = [
+        {
+            'x': time[event_time + 1],
+            'y': 0.95,
+            'xref': 'x',
+            'yref': 'paper',
+            'text': label,
+            'showarrow': False,
+            'font': {
+                'color': 'white'
+            },
+            'textangle': -90
+        } for event_time, label in zip(event_times, event_names)
+    ]
+
     # Define the layout with annotations and shapes
     layout = go.Layout(
         title='KINEMATIC SEQUENCE',
@@ -233,6 +284,7 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
                     gridwidth=1,
                     zeroline=False,),
         annotations=annotations,
+        shapes=shapes,
         showlegend=True,
         legend=dict(orientation='h'),
         margin=dict(l=40, r=40, t=40, b=40),
@@ -240,7 +292,7 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
     )
 
     # Create the figure and add traces to it
-    fig = go.Figure(data=traces + reference_lines, layout=layout)
+    fig = go.Figure(data=traces, layout=layout)
     
     return ks, fig
 
@@ -277,7 +329,8 @@ k_kh_time1 = kine_filtered['kh_time'][0] - k_kh_time
 k_fc_time  = kine_filtered['fc_time'][0] - k_kh_time
 k_mer_time = kine_filtered['mer_time'][0] - k_kh_time
 k_br_time  = kine_filtered['br_time'][0] - k_kh_time
-stride_length = round(kine_filtered['stride_length'][0])
+stride_length = round(float(kine_filtered['stride_length'][0]))
+ball_speed = round(float(kine_filtered['ball_speed'][0]) * 1.6)
 
 f_sr = 1080
 f_kh_time  = force_filtered['kh_time'][0] 
@@ -338,6 +391,7 @@ force_ap_fig, force_ap_values = grf_plotly(f_df, ap_cols, f_time, f_kh_time1, f_
 force_vt_fig, force_vt_values = grf_plotly(f_df, vt_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='vt')
 kine_values, kine_fig = one_angle_plotly(k_df, ang_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
 kinematic_values, kinematic_fig = kinematic_sequence_plotly(k_df, ks_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+
 force_ap_fig.update_layout(
     width=800,  # Set the width to your preference
     height=400  # Set the height to your preference
@@ -356,13 +410,48 @@ kinematic_fig.update_layout(
     width=800,
     height=400
 )
+peak_pel = round(kinematic_values['peak']['PELVIS_ANGLUAR_VELOCITY_Z']); time_pel = kinematic_values['time']['PELVIS_ANGLUAR_VELOCITY_Z']
+peak_tor = round(kinematic_values['peak']['TORSO_ANGLUAR_VELOCITY_Z']);time_tor = kinematic_values['time']['TORSO_ANGLUAR_VELOCITY_Z']
+peak_elb = round(kinematic_values['peak']['LEAD_ELBOW_ANGULAR_VELOCITY_X']);time_elb = kinematic_values['time']['LEAD_ELBOW_ANGULAR_VELOCITY_X']
+peak_sho = round(kinematic_values['peak']['LEAD_SHOULDER_ANGULAR_VELOCITY_Z']);time_sho = kinematic_values['time']['LEAD_SHOULDER_ANGULAR_VELOCITY_Z']
+
+total_time = k_br_time+1 - k_fc_time
+
+pel_time = round(100 * (time_pel+1 - k_fc_time) / total_time)
+tor_time = round(100 * (time_tor+1 - k_fc_time) / total_time)
+elb_time = round(100 * (time_elb+1 - k_fc_time) / total_time)
+sho_time = round(100 * (time_sho+1 - k_fc_time) / total_time)
+
+tor_gain = round(peak_tor / peak_pel,2)
+upper_gain = round(peak_elb / peak_tor,2)
+fore_gain = round(peak_sho / peak_elb,2)
+
+sq_time = [pel_time, tor_time, elb_time, sho_time]
+expected_order = transform_list(sq_time)
+
+data_as_dict = {
+    "Segment": ["Pelvic [°/s]", "Torso [°/s]", "Elbow [°/s]", "Shoulder [°/s]"],
+    "Pro": ["649 ~ 840", "987 ~ 1174", "2211 ~ 2710", "4331 ~ 4884"],
+    "Peak": [peak_pel, peak_tor, peak_elb, peak_sho],
+    "Timing": [f"{pel_time} %", f"{tor_time} %", f"{elb_time} %", f"{sho_time} %"],
+    "Sequence": expected_order,
+    "Speed Gain": [0, tor_gain,upper_gain, fore_gain]
+}
+kinematic_sq = pd.DataFrame(data_as_dict)
+kinematic_sq = kinematic_sq.set_index('Segment')
+kinematic_sq['Speed Gain'] = kinematic_sq['Speed Gain'].astype(float).map('{:.2f}'.format)
+kinematic_sq = kinematic_sq.style.set_properties(**{'text-align': 'center'})
 # ===================================================================================
 # ============================= DashBoard ===========================================
 page_tab1, page_tab2 = st.tabs(["데이터 보기", "피드백 남기기"])
 
 with page_tab1:
     st.title("KMU BASEBALL PITCHING REPORT")
-    
+    cols = st.columns([1,1])
+    with cols[0]:
+        st.metric(label="Ball Speed", value=f"{ball_speed} km/h", delta=None)
+    with cols[1]:
+        st.metric(label="Stride Length", value=f"{stride_length} %Height", delta=None)
     st.markdown("""
         <style>
         .kinetics-parameters {
@@ -413,29 +502,43 @@ with page_tab1:
         st.image('image/kinematic.png', use_column_width=True)
     with col2:
         st.plotly_chart(kinematic_fig, use_container_width=True)
-
-    ang_cols = {
-        'TORSO_PELVIS_ANGLE_Z'            : 'HIP-SHOULDER SEPARATION',
-        'LEAD_ELBOW_ANGLE_X'              : 'ELBOW FLEXION',
-        'LEAD_SHOULDER_ANGLE_Z'           : 'SHOULDER EXTERNAL ROTATION',          
-        'LEAD_SHOULDER_ANGLE_X'           : 'SHOULDER HORIZONTAL ABDUCTION',
-        'LEAD_KNEE_ANGLE_X'               : 'LEAD KNEE FLEXION',
-        'LEAD_KNEE_ANGULAR_VELOCITY_X'    : 'LEAD KNEE EXTENSION ANGULAR VELOCITY',
-        'LEAD_SHOULDER_ANGLE_Y'           : 'SHOULDER ABDUCTION', 
-        'TORSO_ANGLE_X'                   : 'TRUNK FORWARD TILT',
-        'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
-    }
+    # Streamlit에서 테이블 형태로 DataFrame 표시.
+    st.dataframe(kinematic_sq, use_container_width=True)
+        
+    
+    
     st.subheader('Ball Release')
     tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
     br_taps = st.tabs(['SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
     for tab, key in zip(br_taps, tabs_keys):
+        if 'ANGLE' in key:
+            unit = '°'
+        elif 'ANGULAR' in key:
+            unit = '°/s'
         with tab:
             col1, col2 = st.columns([1,2.8])
             with col1:
                 st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
             with col2:
                 st.plotly_chart(kine_fig[key], use_container_width=True)
-
+            
+            cols = st.columns([1,1,1,1,1])
+            metrics = ['fc_time','mer_time','br_time','max','max_time']
+            labels = ['At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
+            values = [kine_values[m][key] for m in metrics]
+            for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                with col:
+                    if metrics[i] == 'br_time':  # Highlight the 'At BR' value in red
+                        # Customize as per your actual styling needs
+                        st.markdown(
+                            f"<div style='text-align: left;'><span style='font-size: 15px; color:red;'>{label}</span><br><span style='color: red; font-size: 36px;'>{value} {unit}</span></div>",
+                            unsafe_allow_html=True
+                        )
+                    elif metrics[i] in ['fc_time','mer_time','max']:
+                        # Use Streamlit's metric for the rest of the values
+                        st.metric(label=label, value=f"{value} {unit}", delta=None) 
+                    elif metrics[i] == 'max_time':
+                        st.metric(label=label, value=f"{value} %", delta=None) 
         
 
     st.subheader('ARM ACCELERATION')
