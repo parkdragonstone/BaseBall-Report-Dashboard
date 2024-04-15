@@ -22,22 +22,24 @@ def data_concat():
         _, kday, _, kfname = kine_dir.split('/')
         _, fday, _, ffname = force_dir.split('/')
         kfname = kfname.replace('.csv','')
-        kplayer_name, ktrial, _, _, _, _, kball, _ = kfname.split('_')
+        kplayer_name, ktrial, _, _, _, _, kball, _,kpit_type = kfname.split('_')
         
         ffname = ffname.replace('.csv','')
-        fplayer_name, ftrial, _, _, _, _, fball, _ = ffname.split('_')
+        fplayer_name, ftrial, _, _, _, _, fball, _,fpit_type = ffname.split('_')
         
         
         kine['player'] = kplayer_name
         kine['day'] = kday
         kine['trial'] = ktrial
         kine['ball_speed'] = kball
-        
+        kine['pit_type'] = kpit_type
+
         force['player'] = fplayer_name
         force['day'] = fday
         force['trial'] = ftrial
         force['ball_speed'] = fball
-        
+        force['pit_type'] = fpit_type
         kdf = pd.concat([kdf, kine])
         fdf = pd.concat([fdf, force])
+        
     return kdf, fdf

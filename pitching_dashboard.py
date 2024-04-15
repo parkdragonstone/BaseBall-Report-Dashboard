@@ -42,7 +42,7 @@ else:
     filtered_df_by_name_datas = kdf[(kdf['player'] == selected_name) &
                                     (kdf['day'] == selected_date)]
     unique_trial = sorted(filtered_df_by_name_datas['trial'].unique())
-    selected_trial = st.sidebar.selectbox('Select Date', unique_trial)
+    selected_trial = st.sidebar.selectbox('Select Trial', unique_trial)
 
     kine_filtered = kdf[(kdf['player'] == selected_name) & 
                         (kdf['day'] == selected_date) &
@@ -56,16 +56,19 @@ else:
     force_filtered.reset_index(inplace=True, drop=True)
 
     k_sr = 180
+    multiple = 6
+    f_sr = k_sr * multiple
     k_kh_time  = kine_filtered['kh_time'][0]
     k_kh_time1 = kine_filtered['kh_time'][0] - k_kh_time
     k_fc_time  = kine_filtered['fc_time'][0] - k_kh_time
     k_mer_time = kine_filtered['mer_time'][0] - k_kh_time
     k_br_time  = kine_filtered['br_time'][0] - k_kh_time
+    
     stride_length = round(float(kine_filtered['stride_length'][0]))
     ball_speed = round(float(kine_filtered['ball_speed'][0]) * 1.6)
+    pit_type = kine_filtered['pit_type'][0]
     k_total_time = k_br_time+1 - k_fc_time
 
-    f_sr = k_sr * 6
     f_kh_time  = force_filtered['kh_time'][0] 
     f_kh_time1 = force_filtered['kh_time'][0]  - f_kh_time
     f_fc_time  = force_filtered['fc_time'][0]  - f_kh_time
@@ -75,13 +78,6 @@ else:
 
     k_df = kine_filtered.iloc[k_kh_time:int(k_br_time + k_kh_time + (k_sr * 0.2)),:].reset_index(drop=True)
     f_df = force_filtered.iloc[f_kh_time:int(f_br_time + f_kh_time + (f_sr * 0.2)),:].reset_index(drop=True)
-
-    f_lead_peak_z_time = f_df['lead_peak_z'][0] - f_kh_time
-    f_rear_peak_z_time = np.where(f_df['REAR_FORCE_Z'] == f_df['REAR_FORCE_Z'].max())[0][0]
-    force_peak_time = round((f_lead_peak_z_time - f_rear_peak_z_time) / 1080 , 4)
-
-    f_rear_peak_y_time = np.where(f_df['REAR_FORCE_Y'] == f_df['REAR_FORCE_Y'].max())[0][0]
-    f_lead_min_y_time  = f_df['lead_valley_y'][0] - f_kh_time
 
     k_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
     f_df.drop(['kh_time','fc_time','mer_time','br_time','mir_time'], axis=1, inplace=True)
@@ -124,7 +120,6 @@ else:
         'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
         'HAND_ELBOW_HEIGHT'               : 'HAND ELBOW HEIGHT',
         'TORSO_ANGLE_Z'                   : 'TRUNK ROTATION',
-        
     }
 
     # ============================ 그래프 및 시점 수치 =======================================
@@ -232,11 +227,13 @@ else:
         """, unsafe_allow_html=True)
 
         st.title("KMU BASEBALL PITCHING REPORT")
-        cols = st.columns([1,1])
+        cols = st.columns([1,1,1])
         with cols[0]:
             st.metric(label="Ball Speed", value=f"{ball_speed} km/h", delta=None)
         with cols[1]:
-            st.metric(label="Stride Length", value=f"{stride_length} %Height", delta=None)
+            st.metric(label="Pitching Type", value=f"{pit_type}", delta=None)
+        with cols[2]:
+            st.metric(label="Stride Length", value=f"{stride_length} %Height", delta=None)    
         
         # 분석 구간
         st.markdown("""
