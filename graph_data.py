@@ -31,9 +31,9 @@ def grf_plotly(data, cols, time, kh_time, fc_time, mer_time, br_time, axis):
     elif axis == 'vt':
         title = 'GROUND REACTION FORCE (Vertical)'
         ylb = 'Force [%BW]'
-    elif axis == 'momentum':
-        title = 'MOMENTUM (AP-AXIS)'
-        ylb = 'Momentum [N*s/BW]'
+    elif axis == 'freemoment':
+        title = 'TORQUE'
+        ylb = 'Torque [N*m]'
 
     y_values = {
         'max'       : {},
@@ -240,6 +240,87 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
     return ang, figures
 
 def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
+    ks = {
+        'peak' : {},
+        'time' : {},
+    }
+    
+    # Create traces for each data series
+    traces = []
+    for col in ks_cols:
+        trace = go.Scatter(
+            x=time, 
+            y=data[col], 
+            mode='lines', 
+            name=ks_cols[col][0],
+            opacity=0.9,
+            line=dict(color=ks_cols[col][-1],width= 3), 
+        )
+        traces.append(trace)
+        ks['peak'][col] = round(data[col].max(), 2)
+        ks['time'][col] = np.where(data[col] == data[col].max())[0][0]
+    
+    event_times = [k_kh_time, k_fc_time, k_mer_time, k_br_time]
+    event_names = ['KH', 'FC', 'MER', 'BR']
+    shapes = [
+        {
+            'type': 'line',
+            'xref': 'x',
+            'yref': 'paper',
+            'x0': time[event_time],
+            'y0': 0,
+            'x1': time[event_time],
+            'y1': 1,
+            'opacity' : 0.5,
+            'line': {
+                'color': 'cyan',
+                'width': 3,
+                'dash': 'dash',
+            }
+        } for event_time in event_times
+    ]
+    annotations = [
+        {
+            'x': time[event_time + 2],
+            'y': 1,
+            'xref': 'x',
+            'yref': 'paper',
+            'text': label,
+            'showarrow': False,
+            'font': {
+                'color': 'cyan',
+                'size' : 16
+            },
+            'textangle': -90
+        } for event_time, label in zip(event_times, event_names)
+    ]
+
+    # Define the layout with annotations and shapes
+    layout = go.Layout(
+        title='KINEMATIC SEQUENCE',
+        xaxis=dict(title='Time [s]',
+                   showgrid=False),
+        yaxis=dict(title='Angular Velocity [Deg/s]', 
+                   autorange=True,           
+                    rangemode='tozero',
+                    showgrid=True,         # This will show the horizontal gridlines
+                    gridcolor='lightgrey',
+                    gridwidth=1,
+                    zeroline=False,),
+        annotations=annotations,
+        shapes=shapes,
+        showlegend=True,
+        legend=dict(orientation='h'),
+        margin=dict(l=40, r=40, t=40, b=40),
+        plot_bgcolor='rgb(43,48,61)'
+    )
+
+    # Create the figure and add traces to it
+    fig = go.Figure(data=traces, layout=layout)
+    
+    return ks, fig
+
+def energy_flow(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
     ks = {
         'peak' : {},
         'time' : {},
