@@ -5,7 +5,8 @@ import streamlit as st
 import numpy as np
 from glob import glob
 import data_concat
-from graph_data import check_credentials,show_login_form,transform_list, grf_plotly, one_angle_plotly, kinematic_sequence_plotly
+from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
+from graph_data import kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
 
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
@@ -58,6 +59,7 @@ else:
     k_sr = 180
     multiple = 6
     f_sr = k_sr * multiple
+    
     k_kh_time  = kine_filtered['kh_time'][0]
     k_kh_time1 = kine_filtered['kh_time'][0] - k_kh_time
     k_fc_time  = kine_filtered['fc_time'][0] - k_kh_time
@@ -121,7 +123,26 @@ else:
         'HAND_ELBOW_HEIGHT'               : 'HAND ELBOW HEIGHT',
         'TORSO_ANGLE_Z'                   : 'TRUNK ROTATION',
     }
-
+    energy_cols = {
+        "LEAD_SHANK_LINEAR_MOMENTUM": ["SHANK LINEAR MOMENTUM","shank_energy"],
+        "LEAD_THIGH_LINEAR_MOMENTUM": ["THIGH LINEAR MOMENTUM","thigh_energy"],
+        "PELVIS_LINEAR_MOMENTUM": ["PELVIS LINEAR MOMENTUM","pelvis_energy"],
+        "TORSO_LINEAR_MOMENTUM": ["TORSO LINEAR MOMENTUM","torso_energy"],
+        "LEAD_UPA_LINEAR_MOMENTUM": ["ARM LINEAR MOMENTUM","arm_energy"],
+        "LEAD_FA_LINEAR_MOMENTUM": ["FOREARM LINEAR MOMENTUM","forearm_energy"],
+        "LEAD_SHANK_ANGULAR_MOMENTUM": ["SHANK ANGULAR MOMENTUM","shank_energy"],
+        "LEAD_THIGH_ANGULAR_MOMENTUM": ["THIGH ANGULAR MOMENTUM","thigh_energy"],
+        "PELVIS_ANGULAR_MOMENTUM": ["PELVIS ANGULAR MOMENTUM","pelvis_energy"],
+        "TORSO_ANGULAR_MOMENTUM": ["TORSO ANGULAR MOMENTUM","torso_energy"],
+        "LEAD_UPA_ANGULAR_MOMENTUM": ["ARM ANGULAR MOMENTUM","arm_energy"],
+        "LEAD_FA_ANGULAR_MOMENTUM": ["FOREARM ANGULAR MOMENTUM","forearm_energy"],
+        "LEAD_SHANK_NET_SP" : ["SHANK POWER","shank_energy"],
+        "LEAD_THIGH_NET_SP" : ["THIGH POWER","thigh_energy"],
+        "PELVIS_NET_SP" : ["PELVIS POWER","pelvis_energy"],
+        "TORSO_NET_SP" : ["TORSO POWER","torso_energy"],
+        "LEAD_ARM_NET_SP" : ["ARM POWER","arm_energy"],
+        "LEAD_FOREARM_NET_SP" : ["FOREARM POWER","forearm_energy"],
+    }
     # ============================ 그래프 및 시점 수치 =======================================
     force_ap_fig, force_ap_values = grf_plotly(f_df, ap_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='ap')
     force_vt_fig, force_vt_values = grf_plotly(f_df, vt_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='vt')
@@ -129,7 +150,9 @@ else:
     force_momentum_fig, force_momentum_values = grf_plotly(f_df, momentum_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='freemoment')
     kine_values, kine_fig = one_angle_plotly(k_df, ang_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
     kinematic_values, kinematic_fig = kinematic_sequence_plotly(k_df, ks_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
-
+    energy_values, energy_fig = energy_plotly(k_df, energy_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    
+    
     force_ap_fig.update_layout(
         width=800,  # Set the width to your preference
         height=400  # Set the height to your preference
@@ -152,11 +175,16 @@ else:
         width=800,  # Set the width to your preference
         height=400  # Set the height to your preference
         )
+    for col in energy_fig:
+        fig = energy_fig[col]
+        fig.update_layout(
+        width=800,  # Set the width to your preference
+        height=400  # Set the height to your preference
+        )
     kinematic_fig.update_layout(
         width=800,
         height=400
     )
-
 
     peak_pel = round(kinematic_values['peak']['PELVIS_SEG_ANGULAR_VELOCITY_Z']); time_pel = kinematic_values['time']['PELVIS_SEG_ANGULAR_VELOCITY_Z']
     peak_tor = round(kinematic_values['peak']['TORSO_SEG_ANGULAR_VELOCITY_Z']);time_tor = kinematic_values['time']['TORSO_SEG_ANGULAR_VELOCITY_Z']
@@ -177,11 +205,11 @@ else:
 
     data_as_dict = {
         "Segment": ["Pelvic [°/s]", "Torso [°/s]", "Elbow [°/s]", "Shoulder [°/s]"],
-        "Pro": ["649 ~ 840", "987 ~ 1174", "2211 ~ 2710", "4331 ~ 4884"],
         "Peak": [peak_pel, peak_tor, peak_elb, peak_sho],
         "Timing": [f"{pel_time} %", f"{tor_time} %", f"{elb_time} %", f"{sho_time} %"],
         "Sequence": expected_order,
-        "Speed Gain": [0, tor_gain,upper_gain, fore_gain]
+        "Speed Gain": [0, tor_gain,upper_gain, fore_gain],
+        "Pro": ["649 ~ 840", "987 ~ 1174", "2211 ~ 2710", "4331 ~ 4884"]
     }
     kinematic_sq = pd.DataFrame(data_as_dict)
     kinematic_sq = kinematic_sq.set_index('Segment')
@@ -217,6 +245,9 @@ else:
         # 고정된 상단 바에 넣을 링크들입니다.
         st.markdown("""
         <div class="fixed-top">
+            <a href="#linear-momentum">Linear Momentum</a>
+            <a href="#angular-momentum">Angular Momentum</a>
+            <a href="#segment-power">Segment Power</a>
             <a href="#kinematic-sequence">Kinematic Sequence</a>
             <a href="#ball-release">Ball Release</a>
             <a href="#arm-acceleration">Arm Acceleration</a>
@@ -235,7 +266,7 @@ else:
         with cols[2]:
             st.metric(label="Stride Length", value=f"{stride_length} %Height", delta=None)    
         
-        # 분석 구간
+        ## 분석 구간
         st.markdown("""
             <style>
             .event_phase-header {
@@ -252,9 +283,8 @@ else:
         """, unsafe_allow_html=True)
         st.image('image/analysis.png', use_column_width=True)
         
-        
         st.empty()  # 상단에 빈 공간 추가
-        # ENERGY FLOW
+        ## ENERGY FLOW
         st.markdown("""
             <style>
             .energy_flow-parameters {
@@ -269,8 +299,85 @@ else:
                 <h2>ENERGY FLOW</h2>
             </div>
         """, unsafe_allow_html=True)
+        
+        ## LINEAR MOMENTUM
+        st.subheader('Linear Momentum')
+        st.markdown('<a name="linear-momentum"></a>', unsafe_allow_html=True)
+        tabs_keys = ['LEAD_SHANK_LINEAR_MOMENTUM','LEAD_THIGH_LINEAR_MOMENTUM', 'PELVIS_LINEAR_MOMENTUM', 
+                     'TORSO_LINEAR_MOMENTUM', 'LEAD_UPA_LINEAR_MOMENTUM','LEAD_FA_LINEAR_MOMENTUM']
+        lm_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        for tab, key in zip(lm_taps, tabs_keys):
+            with tab:
+                col1, col2 = st.columns([1,2.8])
+                with col1:
+                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+                with col2:
+                    st.plotly_chart(energy_fig[key], use_container_width=True)
+                cols = st.columns([1,1,1,1,1])
+                metrics = ['fc_time','mer_time','br_time','max','max_time']
+                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
+                values = [energy_values[m][key] for m in metrics]
+                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                    with col:
+                        if metrics[i] in ['fc_time','br_time','mer_time','max']:
+                            # Use Streamlit's metric for the rest of the values
+                            st.metric(label=label, value=f"{value} kg•m²/s", delta=None)
+                        elif metrics[i] in ['max_time']:
+                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
+        st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
+        
+        ## ANGULAR MOMENTUM
+        st.subheader('Angular Momentum')
+        st.markdown('<a name="angular-momentum"></a>', unsafe_allow_html=True)
+        tabs_keys = ['LEAD_SHANK_ANGULAR_MOMENTUM','LEAD_THIGH_ANGULAR_MOMENTUM', 'PELVIS_ANGULAR_MOMENTUM', 
+                     'TORSO_ANGULAR_MOMENTUM', 'LEAD_UPA_ANGULAR_MOMENTUM','LEAD_FA_ANGULAR_MOMENTUM']
+        am_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        for tab, key in zip(am_taps, tabs_keys):
+            with tab:
+                col1, col2 = st.columns([1,2.8])
+                with col1:
+                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+                with col2:
+                    st.plotly_chart(energy_fig[key], use_container_width=True)
+                cols = st.columns([1,1,1,1,1])    
+                metrics = ['fc_time','mer_time','br_time','max','max_time']
+                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
+                values = [energy_values[m][key] for m in metrics]
+                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                    with col:
+                        if metrics[i] in ['fc_time','br_time','mer_time','max']:
+                            # Use Streamlit's metric for the rest of the values
+                            st.metric(label=label, value=f"{value} kg•m²/(s•rad)", delta=None)
+                        elif metrics[i] in ['max_time']:
+                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None)
+        st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
+        
+        ## Segment Power
+        st.subheader('Segment Power')
+        st.markdown('<a name="segment-power"></a>', unsafe_allow_html=True)    
+        tabs_keys = ['LEAD_SHANK_NET_SP','LEAD_THIGH_NET_SP', 'PELVIS_NET_SP', 
+                     'TORSO_NET_SP', 'LEAD_ARM_NET_SP','LEAD_FOREARM_NET_SP']
+        sp_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        for tab, key in zip(sp_taps, tabs_keys):
+            with tab:
+                col1, col2 = st.columns([1,2.8])
+                with col1:
+                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+                with col2:
+                    st.plotly_chart(energy_fig[key], use_container_width=True)
+                cols = st.columns([1,1,1,1,1,1,1,1])    
+                metrics = ['fc_time','mer_time','br_time','max','min','max_time','min_time']
+                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Min', 'Max Time','Min Time']
+                values = [energy_values[m][key] for m in metrics]
+                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                    with col:
+                        if metrics[i] in ['fc_time','br_time','mer_time','max','min']:
+                            # Use Streamlit's metric for the rest of the values
+                            st.metric(label=label, value=f"{value}", delta=None)
+                        elif metrics[i] in ['max_time','min_time']:
+                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
+        st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)        
 
-        st.empty()  # 상단에 빈 공간 추가
         # KINEMATICS PARAMETERS
         st.markdown("""
             <style>
@@ -287,6 +394,7 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
+        ## KINEMATIC SEQUENCE
         st.markdown('<a name="kinematic-sequence"></a>', unsafe_allow_html=True)
         st.subheader('Kinematic Sequence')
         col1, col2 = st.columns([1,2.8])
@@ -298,6 +406,7 @@ else:
         st.dataframe(kinematic_sq, use_container_width=True)
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
+        ## Ball Release
         st.markdown('<a name="ball-release"></a>', unsafe_allow_html=True)
         st.subheader('Ball Release')
         tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
@@ -333,6 +442,7 @@ else:
                             st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
+        ## ARM ACCELERATION
         st.markdown('<a name="arm-acceleration"></a>', unsafe_allow_html=True)
         st.subheader('ARM ACCELERATION')
         tabs_keys = ['LEAD_KNEE_ANGLE_X','HAND_ELBOW_HEIGHT', 'LEAD_ELBOW_ANGLE_X']
@@ -365,6 +475,7 @@ else:
                             st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
+        ## ARM COCKING
         st.markdown('<a name="arm-cocking"></a>', unsafe_allow_html=True)
         st.subheader('ARM COCKING')
         tabs_keys = ['TORSO_PELVIS_ANGLE_Z','HAND_ELBOW_HEIGHT','LEAD_SHOULDER_ANGLE_Z','LEAD_SHOULDER_ANGLE_X', 'LEAD_ELBOW_ANGLE_X','LEAD_KNEE_ANGLE_X']
@@ -402,6 +513,7 @@ else:
                             st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
+        ## STRIDE
         st.markdown('<a name="stride"></a>', unsafe_allow_html=True)
         st.subheader('STRIDE')
         tabs_keys = ['TORSO_ANGLE_Z','HAND_ELBOW_HEIGHT']
@@ -433,8 +545,7 @@ else:
                             st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
-        st.empty()  # 상단에 빈 공간 추가
-        # KINETICS PARAMETERS
+        ## KINETICS PARAMETERS
         st.markdown('<a name="kinetic-parameters"></a>', unsafe_allow_html=True)
         st.markdown("""
             <style>
@@ -485,8 +596,7 @@ else:
                             # Use Streamlit's metric for the rest of the values
                             st.metric(label=label, value=f"{value}", delta=None) 
                         elif metrics[i] == 'max_time':
-                            st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
-                
+                            st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None)   
         with kinetics_tab[1]:
             col1, col2 = st.columns([1,2.8])
             with col1:
@@ -519,7 +629,6 @@ else:
                             st.metric(label=label, value=f"{value}", delta=None) 
                         elif metrics[i] == 'max_time':
                             st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
-
         with kinetics_tab[2]:
             col1, col2 = st.columns([1,2.8])
             with col1:
@@ -552,7 +661,6 @@ else:
                             st.metric(label=label, value=f"{value}", delta=None) 
                         elif metrics[i] == 'max_time':
                             st.metric(label=label, value=f"{round(100 * (value - f_fc_time)/(f_br_time+1 - f_fc_time))} %", delta=None) 
-
         with kinetics_tab[3]:
             col1, col2 = st.columns([1,2.8])
             with col1:

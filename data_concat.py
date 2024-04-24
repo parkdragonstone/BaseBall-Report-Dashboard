@@ -8,7 +8,19 @@ def data_concat():
 
     KINEMATIC_DIR = [i.replace('\\','/') for i in glob(KINEMATIC_PATH)]
     FORCE_DIR = [i.replace('\\','/') for i in glob(FORCE_PATH)]
-
+    energy_cols = [
+            "REAR_SHANK_NET_SP",    
+            "LEAD_SHANK_NET_SP",
+            "LEAD_THIGH_NET_SP",
+            "REAR_THIGH_NET_SP",
+            "PELVIS_NET_SP",
+            "TORSO_NET_SP",
+            "LEAD_ARM_NET_SP",
+            "REAR_ARM_NET_SP",
+            "LEAD_FOREARM_NET_SP",
+            "REAR_FOREARM_NET_SP",
+            ]
+    
     kdf = pd.DataFrame()
     fdf = pd.DataFrame()
 
@@ -22,11 +34,12 @@ def data_concat():
         _, kday, _, kfname = kine_dir.split('/')
         _, fday, _, ffname = force_dir.split('/')
         kfname = kfname.replace('.csv','')
-        kplayer_name, ktrial, _, _, _, _, kball, _,kpit_type = kfname.split('_')
+        kplayer_name, ktrial, _, mass, _, _, kball, _,kpit_type = kfname.split('_')
         
         ffname = ffname.replace('.csv','')
         fplayer_name, ftrial, _, _, _, _, fball, _,fpit_type = ffname.split('_')
         
+        kine[energy_cols] = kine[energy_cols]/float(mass)
         
         kine['player'] = kplayer_name
         kine['day'] = kday
