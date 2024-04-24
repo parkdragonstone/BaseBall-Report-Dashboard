@@ -33,7 +33,7 @@ else:
     if st.session_state['selected_name'] in ['kookmin']:
         unique_names = kdf['player'].unique()
     else:
-        unique_names = [st.session_state['selected_name']]
+        unique_names = st.session_state['selected_name']
         
     selected_name = st.sidebar.selectbox('Select Name', unique_names)
     filtered_df_by_name = kdf[kdf['player'] == selected_name]

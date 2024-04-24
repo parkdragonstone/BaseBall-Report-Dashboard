@@ -3,10 +3,9 @@ import numpy as np
 import streamlit as st
 
 username_passward = {
-    "kookmin" : "640511",
-    "JeremiahLo" : "640511",
-    "Kangmingu" : "640511",
-    "jereniahLo" : "640511",
+    "kookmin" : ["640511"],
+    "Kangmingu" : ["1234",["Kangmingu"]],
+    "songseok" : ["1234", ["songseokhyun"]]
 }
 
 
@@ -681,9 +680,12 @@ def energy_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time)
     return ang, figures
 
 def check_credentials(username, passward):
-    if username in username_passward and passward == username_passward[username]:
-        st.session_state['authenticated'] = True    
-        st.session_state['selected_name'] = username
+    if username in username_passward and passward == username_passward[username][0]:
+        st.session_state['authenticated'] = True
+        if username == 'kookmin':
+            st.session_state['selected_name'] = username
+        else:
+            st.session_state['selected_name'] = username_passward[username][1]
     else:
         st.session_state['authenticated'] = False
         st.error('ID나 PASSWORD가 잘못되었습니다')
