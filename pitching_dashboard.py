@@ -122,6 +122,8 @@ else:
         'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
         'HAND_ELBOW_HEIGHT'               : 'HAND ELBOW HEIGHT',
         'TORSO_ANGLE_Z'                   : 'TRUNK ROTATION',
+        'PELVIS_TORSO_AP_DISTANCE'        : 'PELVIS-HEAD DISTANCE',
+        'ANKLE_HAND_AP_DISTANCE'          : 'ANKLE-HAND DISTANCE',
     }
     energy_cols = {
         "LEAD_SHANK_LINEAR_MOMENTUM": ["SHANK LINEAR MOMENTUM","shank_energy"],
@@ -206,7 +208,7 @@ else:
     data_as_dict = {
         "Segment": ["Pelvic [°/s]", "Torso [°/s]", "Elbow [°/s]", "Shoulder [°/s]"],
         "Peak": [peak_pel, peak_tor, peak_elb, peak_sho],
-        "Timing": [f"{pel_time} %", f"{tor_time} %", f"{elb_time} %", f"{sho_time} %"],
+        "Timing [FC-BR%]": [f"{pel_time} %", f"{tor_time} %", f"{elb_time} %", f"{sho_time} %"],
         "Sequence": expected_order,
         "Speed Gain": [0, tor_gain,upper_gain, fore_gain],
         "Pro": ["649 ~ 840", "987 ~ 1174", "2211 ~ 2710", "4331 ~ 4884"]
@@ -365,7 +367,7 @@ else:
                     st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
                 with col2:
                     st.plotly_chart(energy_fig[key], use_container_width=True)
-                cols = st.columns([1,1,1,1,1,1,1,1])    
+                cols = st.columns([1,1,1,1,1,1,1])    
                 metrics = ['fc_time','mer_time','br_time','max','min','max_time','min_time']
                 labels = ['At FC', 'At MER', 'At BR', 'Max', 'Min', 'Max Time','Min Time']
                 values = [energy_values[m][key] for m in metrics]
@@ -409,13 +411,15 @@ else:
         ## Ball Release
         st.markdown('<a name="ball-release"></a>', unsafe_allow_html=True)
         st.subheader('Ball Release')
-        tabs_keys = ['LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
-        br_taps = st.tabs(['SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
+        tabs_keys = ['ANKLE_HAND_AP_DISTANCE','LEAD_SHOULDER_ANGLE_Y','TORSO_ANGLE_X', 'TORSO_ANGLE_Y', 'LEAD_KNEE_ANGLE_X', 'LEAD_KNEE_ANGULAR_VELOCITY_X']
+        br_taps = st.tabs(['Early Release','SHOULDER ABDUCTION', 'TRUNK FORWARD TILT', 'TRUNK LATERAL TILT','LEAD KNEE FLEXION','LEAD KNEE EXTENSION VELOCITY'])
         for tab, key in zip(br_taps, tabs_keys):
             if 'ANGLE' in key:
                 unit = '°'
             elif 'ANGULAR' in key:
                 unit = '°/s'
+            else:
+                unit = 'cm'    
             with tab:
                 col1, col2 = st.columns([1,2.8])
                 with col1:
@@ -445,8 +449,8 @@ else:
         ## ARM ACCELERATION
         st.markdown('<a name="arm-acceleration"></a>', unsafe_allow_html=True)
         st.subheader('ARM ACCELERATION')
-        tabs_keys = ['LEAD_KNEE_ANGLE_X','HAND_ELBOW_HEIGHT', 'LEAD_ELBOW_ANGLE_X']
-        aa_taps = st.tabs(['LEAD KNEE FLEXION','HIGH HAND at MAX LAYBACK','ELBOW FLEXION'])       
+        tabs_keys = ['HAND_ELBOW_HEIGHT','LEAD_KNEE_ANGLE_X', 'LEAD_ELBOW_ANGLE_X']
+        aa_taps = st.tabs(['HIGH HAND at MAX LAYBACK','LEAD KNEE FLEXION','ELBOW FLEXION'])       
         for tab, key in zip(aa_taps, tabs_keys):
             if 'ANGLE' in key:
                 unit = '°'
@@ -478,8 +482,8 @@ else:
         ## ARM COCKING
         st.markdown('<a name="arm-cocking"></a>', unsafe_allow_html=True)
         st.subheader('ARM COCKING')
-        tabs_keys = ['TORSO_PELVIS_ANGLE_Z','HAND_ELBOW_HEIGHT','LEAD_SHOULDER_ANGLE_Z','LEAD_SHOULDER_ANGLE_X', 'LEAD_ELBOW_ANGLE_X','LEAD_KNEE_ANGLE_X']
-        ac_taps = st.tabs(['X FACTOR','LATE RISE','SHOULDER EXTERNAL ROTATION','SHOULDER HORIZONTAL ABDUCTION','ELBOW FLEXION','KNEE EXTENSION'])  
+        tabs_keys = ['HAND_ELBOW_HEIGHT','PELVIS_TORSO_AP_DISTANCE','TORSO_PELVIS_ANGLE_Z','LEAD_SHOULDER_ANGLE_Z','LEAD_SHOULDER_ANGLE_X', 'LEAD_ELBOW_ANGLE_X','LEAD_KNEE_ANGLE_X']
+        ac_taps = st.tabs(['LATE RISE','Getting Out in Front','X FACTOR','SHOULDER EXTERNAL ROTATION','SHOULDER HORIZONTAL ABDUCTION','ELBOW FLEXION','KNEE EXTENSION'])  
         for tab, key in zip(ac_taps, tabs_keys):
             if 'ANGLE' in key:
                 unit = '°'

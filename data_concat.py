@@ -39,7 +39,17 @@ def data_concat():
         ffname = ffname.replace('.csv','')
         fplayer_name, ftrial, _, _, _, _, fball, _,fpit_type = ffname.split('_')
         
+        lhjc = kine[['LEAD_HIP_JC_X','LEAD_HIP_JC_Y','LEAD_HIP_JC_Z']].values
+        rhjc = kine[['REAR_HIP_JC_X','REAR_HIP_JC_Y','REAR_HIP_JC_Z']].values
+        rsjc = kine[['REAR_SHOULDER_JC_X','REAR_SHOULDER_JC_Y','REAR_SHOULDER_JC_Z']].values
+        lsjc = kine[['LEAD_SHOULDER_JC_X','LEAD_SHOULDER_JC_Y','LEAD_SHOULDER_JC_Z']].values
+        pelvis_jc = pd.DataFrame((lhjc + rhjc)/2, columns = ['PELVIS_JC_X','PELVIS_JC_Y','PELVIS_JC_Z'])
+        torso_jc = pd.DataFrame((rsjc + lsjc)/2, columns = ['TORSO_JC_X','TORSO_JC_Y','TORSO_JC_Z'])
+        torso_pelvis_distance = pelvis_jc['PELVIS_JC_Y'] - torso_jc['TORSO_JC_Y']
+        
         kine[energy_cols] = kine[energy_cols]/float(mass)
+        kine['ANKLE_HAND_AP_DISTANCE'] = round(100 * (kine['LEAD_ANKLE_JC_Y'] - kine['LEAD_WRIST_JC_Y']),1)
+        kine['PELVIS_TORSO_AP_DISTANCE'] = round(100 * torso_pelvis_distance,1)
         
         kine['player'] = kplayer_name
         kine['day'] = kday
