@@ -5,7 +5,8 @@ import streamlit as st
 username_passward = {
     "kookmin" : ["640511"],
     "Kangmingu" : ["1234",["Kangmingu"]],
-    "songseok" : ["1234", ["songseokhyun"]]
+    "songseok" : ["1234", ["songseokhyun"]],
+    "leejeongwoo" : ["1q2w3e4r", ["leejoengwoo"]]
 }
 
 
