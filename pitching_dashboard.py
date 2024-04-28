@@ -7,6 +7,7 @@ from glob import glob
 import data_concat
 from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
 from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
+import subprocess
 
 csv_file = 'feedback.csv'
 feedback_df = pd.read_csv(csv_file)
@@ -710,7 +711,14 @@ else:
         feedback_input = st.text_area("피드백을 남겨주세요:")
         if st.session_state['selected_name'] in ['kookmin']:
             if st.button('제출'):
-                save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)    
+                save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)
+                try:
+                    subprocess.run(['git','add',csv_file],check=True)
+                    subprocess.run(['git','commit','-m','Add new feedback'], check=True)
+                    subprocess.run(['git','push','origin','master'], check=True)
+                except subprocess.CalledProcessError as e:
+                    st.error('Github push 오류 발생')
+        
         st.subheader('저장된 피드백')
         try:
             filtered_feedback = feedback_df[(feedback_df['name'] == selected_name) & 
