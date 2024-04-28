@@ -711,12 +711,6 @@ def save_feedback(df, csv_file, name, date, trial, feedback):
     df_updated = pd.concat([df,new_feedback], ignore_index=True)
     df_updated.to_csv(csv_file, index=False)
         # GitHub에 변경 사항 푸시
-    try:
-        subprocess.run(["git", "add", csv_file], check=True)  # 파일 추가
-        subprocess.run(["git", "commit", "-m", "Add new feedback"], check=True)  # 커밋
-        subprocess.run(["git", "push", "origin", "master"], check=True)  # 푸시
-        st.success("GitHub에 피드백이 반영되었습니다.")
-        
-    except subprocess.CalledProcessError as e:
-        st.error(f"GitHub에 푸시하는 중 오류가 발생했습니다. {e}" )
+    
+    return df_updated
     
