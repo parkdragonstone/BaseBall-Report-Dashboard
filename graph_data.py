@@ -171,7 +171,7 @@ def one_angle_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_ti
             ang['max'][col]  = round(df[k_fc_time:k_br_time+1].max(), 2)
             ang['max_time'][col] = np.where(df == df[k_fc_time:k_br_time+1].max())[0][0]
         
-        elif col in [ 'TORSO_PELVIS_ANGLE_Z','LEAD_SHOULDER_ANGLE_X']:
+        elif col in ['TORSO_PELVIS_ANGLE_Z','LEAD_SHOULDER_ANGLE_X','PELVIS_ANGLE_Z','TORSO_ANGLE_Z']:
             ang['max'][col]  = round(df.min(), 2)
             ang['max_time'][col] = np.where(df == df.min())[0][0]
         

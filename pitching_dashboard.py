@@ -122,6 +122,7 @@ else:
         'TORSO_ANGLE_Y'                   : 'TRUNK LATERAL TILT',
         'HAND_ELBOW_HEIGHT'               : 'HAND ELBOW HEIGHT',
         'TORSO_ANGLE_Z'                   : 'TRUNK ROTATION',
+        'PELVIS_ANGLE_Z'                  : 'PELVIS ROTATION',
         'PELVIS_TORSO_AP_DISTANCE'        : 'PELVIS-HEAD DISTANCE',
         'ANKLE_HAND_AP_DISTANCE'          : 'ANKLE-HAND DISTANCE',
     }
@@ -520,8 +521,8 @@ else:
         ## STRIDE
         st.markdown('<a name="stride"></a>', unsafe_allow_html=True)
         st.subheader('STRIDE')
-        tabs_keys = ['TORSO_ANGLE_Z','HAND_ELBOW_HEIGHT']
-        st_taps = st.tabs(['TRUNK ROTATION','LATE RISE'])  
+        tabs_keys = ['PELVIS_ANGLE_Z','TORSO_ANGLE_Z','HAND_ELBOW_HEIGHT']
+        st_taps = st.tabs(['PELVIS ROTATION', 'TRUNK ROTATION','LATE RISE'])  
         for tab, key in zip(st_taps, tabs_keys):
             if 'ANGLE' in key:
                 unit = '°'
