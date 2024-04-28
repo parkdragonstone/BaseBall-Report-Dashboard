@@ -8,7 +8,7 @@ import data_concat
 from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
 from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
 
-csv_file = 'https://github.com/parkdragonstone/Report-Dashboard/blob/master/feedback.csv'
+csv_file = 'feedback.csv'
 feedback_df = pd.read_csv(csv_file)
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
