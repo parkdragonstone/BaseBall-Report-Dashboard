@@ -8,16 +8,9 @@ import data_concat
 from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
 from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
 import subprocess
-import requests
 
-# csv_file = 'feedback.csv'
-# feedback_df = pd.read_csv(csv_file)
-url = 'https://github.com/parkdragonstone/Report-Dashboard/raw/master/feedback.csv'  # 파일의 raw URL
-response = requests.get(url)
-if response.status_code == 200:
-    from io import StringIO
-    csv_file = StringIO(response.text)
-    feedback_df = pd.read_csv(csv_file)
+csv_file = 'feedback.csv'
+feedback_df = pd.read_csv(csv_file)
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
                 layout="wide"
