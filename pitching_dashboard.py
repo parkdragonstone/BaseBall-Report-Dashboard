@@ -708,9 +708,9 @@ else:
         # 피드백 제출 버튼
         st.subheader("피드백 남기기")
         feedback_input = st.text_area("피드백을 남겨주세요:")
-        if st.button('제출'):
-            save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)
-            
+        if st.session_state['selected_name'] in ['kookmin']:
+            if st.button('제출'):
+                save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)    
         st.subheader('저장된 피드백')
         try:
             filtered_feedback = feedback_df[(feedback_df['name'] == selected_name) & 
