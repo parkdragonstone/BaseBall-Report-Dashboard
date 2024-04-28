@@ -715,9 +715,9 @@ else:
         
         st.subheader('저장된 피드백')
         try:
-            filtered_feedback = feedback_df[(feedback_df['name'] == selected_name) & 
+            filtered_feedback = [i for i in feedback_df[(feedback_df['name'] == selected_name) & 
                                         (feedback_df['date'] == int(selected_date)) & 
-                                        (feedback_df['trial'] == selected_trial)]['feedback'].values[0]
+                                        (feedback_df['trial'] == int(selected_trial))]['feedback'].values]
         except IndexError:
             filtered_feedback = ''
             
