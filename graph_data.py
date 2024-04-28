@@ -718,5 +718,5 @@ def save_feedback(df, csv_file, name, date, trial, feedback):
         st.success("GitHub에 피드백이 반영되었습니다.")
         
     except subprocess.CalledProcessError as e:
-        st.error("GitHub에 푸시하는 중 오류가 발생했습니다.")
+        st.error(f"GitHub에 푸시하는 중 오류가 발생했습니다." {e})
     
