@@ -717,7 +717,7 @@ else:
                     subprocess.run(['git','commit','-m','Add new feedback'], check=True)
                     subprocess.run(['git','push','origin','master'], check=True)
                 except subprocess.CalledProcessError as e:
-                    st.error('Github push 오류 발생')
+                    st.error(f'Github push 오류 발생 : {e}')
         
         st.subheader('저장된 피드백')
         try:
