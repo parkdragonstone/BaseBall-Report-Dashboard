@@ -11,7 +11,7 @@ username_passward = {
     "songseok" : ["1234", ["songseokhyun"]],
     "leejeongwoo" : ["1q2w3e4r", ["leejoengwoo"]]
 }
-
+master_ID = ['kookmin','yongseok']
 
 def transform_list(nums):
     indexed_nums = list(enumerate(nums))
@@ -686,7 +686,7 @@ def energy_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time)
 def check_credentials(username, passward):
     if username in username_passward and passward == username_passward[username][0]:
         st.session_state['authenticated'] = True
-        if username == 'kookmin':
+        if username in master_ID:
             st.session_state['selected_name'] = username
         else:
             st.session_state['selected_name'] = username_passward[username][1]

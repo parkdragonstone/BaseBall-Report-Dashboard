@@ -10,6 +10,7 @@ from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plo
 
 csv_file = 'feedback.csv'
 feedback_df = pd.read_csv(csv_file)
+master_ID = ['kookmin','yongseok']
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
                 layout="wide"
@@ -32,7 +33,7 @@ else:
     fdf['trial'] = fdf['trial'].astype(int)
 
     # 스트림릿 사이드바 설정
-    if st.session_state['selected_name'] in ['kookmin', 'yongseok']:
+    if st.session_state['selected_name'] in master_ID:
         unique_names = kdf['player'].unique()
     else:
         unique_names = st.session_state['selected_name']
