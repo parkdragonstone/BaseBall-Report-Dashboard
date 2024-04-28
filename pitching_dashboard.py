@@ -32,7 +32,7 @@ else:
     fdf['trial'] = fdf['trial'].astype(int)
 
     # 스트림릿 사이드바 설정
-    if st.session_state['selected_name'] in ['kookmin']:
+    if st.session_state['selected_name'] in ['kookmin', 'yongseok']:
         unique_names = kdf['player'].unique()
     else:
         unique_names = st.session_state['selected_name']
@@ -708,7 +708,7 @@ else:
         # 피드백 제출 버튼
         st.subheader("피드백 남기기")
         feedback_input = st.text_area("피드백을 남겨주세요:")
-        if st.session_state['selected_name'] in ['kookmin']:
+        if st.session_state['selected_name'] in ['kookmin','yongseok']:
             if st.button('제출'):
                 feedback_df = save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)
         

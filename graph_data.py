@@ -6,6 +6,7 @@ import subprocess
 
 username_passward = {
     "kookmin" : ["640511"],
+    "yongseok" : ["1234"],
     "Kangmingu" : ["1234",["Kangmingu"]],
     "songseok" : ["1234", ["songseokhyun"]],
     "leejeongwoo" : ["1q2w3e4r", ["leejoengwoo"]]
