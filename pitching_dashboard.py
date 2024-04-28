@@ -6,8 +6,10 @@ import numpy as np
 from glob import glob
 import data_concat
 from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
-from graph_data import kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
+from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
 
+csv_file = 'feedback.csv'
+feedback_df = pd.read_csv(csv_file)
 
 st.set_page_config(page_title = "KMU BASEBALL PITCHING REPORT", 
                 layout="wide"
@@ -703,32 +705,18 @@ else:
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
     with page_tab2:  
-        # 사용자 피드백 받기
-        # Streamlit 세션 상태 초기화
-        # 각 선택에 따른 키 생성 함수
-        def create_key(player, date, trial):
-            return f"{player}_{date}_{trial}_feedback"
-
-        # 피드백 저장 함수
-        def save_feedback(key, feedback):
-            st.session_state[key] = feedback
-
-        # 피드백 제출 처리
-        def handle_feedback_submit(player, date, trial):
-            key = create_key(player, date, trial)
-            feedback = st.session_state.feedback
-            save_feedback(key, feedback)
-            st.success("피드백이 저장되었습니다.")
-
-        # 피드백 입력
-        feedback_input = st.text_area("피드백을 남겨주세요:", key='feedback')
-
         # 피드백 제출 버튼
+        st.subheader("피드백 남기기")
+        feedback_input = st.text_area("피드백을 남겨주세요:")
         if st.button('제출'):
-            handle_feedback_submit(selected_name, selected_date, selected_trial)
-
-        # 저장된 피드백 표시
-        feedback_key = create_key(selected_name, selected_date, selected_trial)
-        if feedback_key in st.session_state:
-            st.subheader('저장된 피드백')
-            st.write(st.session_state[feedback_key])
+            save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)
+            
+        st.subheader('저장된 피드백')
+        try:
+            filtered_feedback = feedback_df[(feedback_df['name'] == selected_name) & 
+                                        (feedback_df['date'] == int(selected_date)) & 
+                                        (feedback_df['trial'] == selected_trial)]['feedback'].values[0]
+        except IndexError:
+            filtered_feedback = ''
+            
+        st.write(filtered_feedback)
