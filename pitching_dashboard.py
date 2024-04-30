@@ -711,13 +711,12 @@ else:
         feedback_input = st.text_area("피드백을 남겨주세요:")
         if st.session_state['selected_name'] in ['kookmin','yongseok']:
             if st.button('제출'):
-                feedback_df = save_feedback(feedback_df, csv_file, selected_name, selected_date, selected_trial, feedback_input)
+                feedback_df = save_feedback(feedback_df, csv_file, selected_name, selected_date, feedback_input)
         
         st.subheader('저장된 피드백')
         try:
             filtered_feedback = [i for i in feedback_df[(feedback_df['name'] == selected_name) & 
-                                        (feedback_df['date'] == int(selected_date)) & 
-                                        (feedback_df['trial'] == int(selected_trial))]['feedback'].values]
+                                        (feedback_df['date'] == int(selected_date))]['feedback'].values]
         except IndexError:
             filtered_feedback = ''
             

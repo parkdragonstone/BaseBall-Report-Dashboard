@@ -702,11 +702,10 @@ def show_login_form():
         password = st.text_input("PASSWORD", type="password", key='login_password')
         login_button = st.button("login", on_click=check_credentials, args=(username, password))
         
-def save_feedback(df, csv_file, name, date, trial, feedback):
+def save_feedback(df, csv_file, name, date, feedback):
     new_feedback = pd.DataFrame({
         'name' : [name],
         'date' : [date],
-        'trial' : [trial],
         'feedback' : [feedback]})
     
     df_updated = pd.concat([df,new_feedback], ignore_index=True)
