@@ -223,7 +223,7 @@ else:
     kinematic_sq = kinematic_sq.style.set_properties(**{'text-align': 'center'})
     # ===================================================================================
     # ============================= DashBoard ===========================================
-    page_tab1, page_tab2 = st.tabs(["데이터 보기", "피드백 남기기"])
+    page_tab1, page_tab2 = st.tabs(["데이터 보기", "피드백"])
 
     with page_tab1:
         st.markdown('<a name="top"></a>', unsafe_allow_html=True)
@@ -707,11 +707,11 @@ else:
 
     with page_tab2:  
         # 피드백 제출 버튼
-        st.subheader("피드백 남기기")
-        feedback_input = st.text_area("피드백을 남겨주세요:")
-        if st.session_state['selected_name'] in ['kookmin','yongseok']:
-            if st.button('제출'):
-                feedback_df = save_feedback(feedback_df, csv_file, selected_name, selected_date, feedback_input)
+        # st.subheader("피드백 남기기")
+        # feedback_input = st.text_area("피드백을 남겨주세요:")
+        # if st.session_state['selected_name'] in ['kookmin','yongseok']:
+        #     if st.button('제출'):
+        #         feedback_df = save_feedback(feedback_df, csv_file, selected_name, selected_date, feedback_input)
         
         st.subheader('저장된 피드백')
         try:
