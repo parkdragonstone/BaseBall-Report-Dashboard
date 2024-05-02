@@ -323,13 +323,15 @@ def kinematic_sequence_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_t
     
     return ks, fig
 
-def energy_flow_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
+def segment_power_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
     ks = {
         'max' : {},
         'max_time' : {},
+        'min' : {},
+        'min_time' : {},
         'fc_time' : {},
         'mer_time' : {},
-        'br_time' : {}
+        'br_time' : {},
     }
     
     # Create traces for each data series
@@ -346,6 +348,8 @@ def energy_flow_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_
         traces.append(trace)
         ks['max'][col] = round(data[col].max(), 2)
         ks['max_time'][col] = np.where(data[col] == data[col].max())[0][0]
+        ks['min'][col] = round(data[col].min(), 2)
+        ks['min_time'][col] = np.where(data[col] == data[col].min())[0][0]
         ks['fc_time'][col] = round(data[col][k_fc_time],2)
         ks['mer_time'][col] = round(data[col][k_mer_time],2)
         ks['br_time'][col] = round(data[col][k_br_time],2)
@@ -414,9 +418,11 @@ def linear_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time
     ks = {
         'max' : {},
         'max_time' : {},
+        'min' : {},
+        'min_time' : {},
         'fc_time' : {},
         'mer_time' : {},
-        'br_time' : {}
+        'br_time' : {},
     }
     
     # Create traces for each data series
@@ -433,6 +439,8 @@ def linear_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time
         traces.append(trace)
         ks['max'][col] = round(data[col].max(), 2)
         ks['max_time'][col] = np.where(data[col] == data[col].max())[0][0]
+        ks['min'][col] = round(data[col].min(), 2)
+        ks['min_time'][col] = np.where(data[col] == data[col].min())[0][0]
         ks['fc_time'][col] = round(data[col][k_fc_time],2)
         ks['mer_time'][col] = round(data[col][k_mer_time],2)
         ks['br_time'][col] = round(data[col][k_br_time],2)
@@ -477,7 +485,7 @@ def linear_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time
         title='LINEAR MOMENTUM',
         xaxis=dict(title='Time [s]',
                    showgrid=False),
-        yaxis=dict(title='Momentum [kg*m²/s]', 
+        yaxis=dict(title='Momentum [kg*m/s]', 
                    autorange=True,           
                     rangemode='tozero',
                     showgrid=True,         # This will show the horizontal gridlines
@@ -503,7 +511,9 @@ def angular_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_tim
         'max_time' : {},
         'fc_time' : {},
         'mer_time' : {},
-        'br_time' : {}
+        'br_time' : {},
+        'min' : {},
+        'min_time' : {},
     }
     
     # Create traces for each data series
@@ -520,6 +530,8 @@ def angular_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_tim
         traces.append(trace)
         ks['max'][col] = round(data[col].max(), 2)
         ks['max_time'][col] = np.where(data[col] == data[col].max())[0][0]
+        ks['min'][col] = round(data[col].min(), 2)
+        ks['min_time'][col] = np.where(data[col] == data[col].min())[0][0]
         ks['fc_time'][col] = round(data[col][k_fc_time],2)
         ks['mer_time'][col] = round(data[col][k_mer_time],2)
         ks['br_time'][col] = round(data[col][k_br_time],2)
@@ -564,7 +576,7 @@ def angular_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_tim
         title='ANGULAR MOMENTUM',
         xaxis=dict(title='Time [s]',
                    showgrid=False),
-        yaxis=dict(title='Momentum [kg*m²/(s*rad)]', 
+        yaxis=dict(title='Momentum [kg*m²/s]', 
                    autorange=True,           
                     rangemode='tozero',
                     showgrid=True,         # This will show the horizontal gridlines
@@ -584,6 +596,98 @@ def angular_momentum_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_tim
     
     return ks, fig
 
+def x_factor_plotly(data, ks_cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
+    ks = {
+        'max' : {},
+        'max_time' : {},
+        'fc_time' : {},
+        'mer_time' : {},
+        'br_time' : {},
+        'min' : {},
+        'min_time' : {},
+    }
+    
+    # Create traces for each data series
+    traces = []
+    for col in ks_cols:
+        trace = go.Scatter(
+            x=time, 
+            y=data[col], 
+            mode='lines', 
+            name=ks_cols[col][0],
+            opacity=0.9,
+            line=dict(color=ks_cols[col][-1],width= 3), 
+        )
+        traces.append(trace)
+        ks['max'][col] = round(data[col].max(), 2)
+        ks['max_time'][col] = np.where(data[col] == data[col].max())[0][0]
+        ks['min'][col] = round(data[col].min(), 2)
+        ks['min_time'][col] = np.where(data[col] == data[col].min())[0][0]
+        ks['fc_time'][col] = round(data[col][k_fc_time],2)
+        ks['mer_time'][col] = round(data[col][k_mer_time],2)
+        ks['br_time'][col] = round(data[col][k_br_time],2)
+    
+    event_times = [k_kh_time, k_fc_time, k_mer_time, k_br_time]
+    event_names = ['KH', 'FC', 'MER', 'BR']
+    shapes = [
+        {
+            'type': 'line',
+            'xref': 'x',
+            'yref': 'paper',
+            'x0': time[event_time],
+            'y0': 0,
+            'x1': time[event_time],
+            'y1': 1,
+            'opacity' : 0.5,
+            'line': {
+                'color': 'cyan',
+                'width': 3,
+                'dash': 'dash',
+            }
+        } for event_time in event_times
+    ]
+    annotations = [
+        {
+            'x': time[event_time + 2],
+            'y': 1,
+            'xref': 'x',
+            'yref': 'paper',
+            'text': label,
+            'showarrow': False,
+            'font': {
+                'color': 'cyan',
+                'size' : 16
+            },
+            'textangle': -90
+        } for event_time, label in zip(event_times, event_names)
+    ]
+
+    # Define the layout with annotations and shapes
+    layout = go.Layout(
+        title='X Factor',
+        xaxis=dict(title='Time [s]',
+                   showgrid=False),
+        yaxis=dict(title='Momentum [kg*m²/s]', 
+                   autorange=True,           
+                    rangemode='tozero',
+                    showgrid=True,         # This will show the horizontal gridlines
+                    gridcolor='lightgrey',
+                    gridwidth=1,
+                    zeroline=False,),
+        annotations=annotations,
+        shapes=shapes,
+        showlegend=True,
+        legend=dict(orientation='h'),
+        margin=dict(l=40, r=40, t=40, b=40),
+        plot_bgcolor='rgb(43,48,61)'
+    )
+
+    # Create the figure and add traces to it
+    fig = go.Figure(data=traces, layout=layout)
+    
+    return ks, fig
+
+
 def energy_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time):
     ang = {
         'max'       : {},
@@ -601,9 +705,9 @@ def energy_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time)
     for col in cols:
         df = data[col]
         if 'LINEAR_MOMENTUM' in col:
-            y_label = 'Momentum [kg•m²/s]'
+            y_label = 'Momentum [kg•m/s]'
         elif 'ANGULAR_MOMENTUM' in col:
-            y_label = 'Momentum [kg•m²/(s•rad)]'
+            y_label = 'Momentum [kg•m²/s]'
         elif 'NET' in col:
             y_label = 'Power [W/kg]'
         # Create the trace for the main data line
@@ -682,6 +786,7 @@ def energy_plotly(data, cols, time, k_kh_time, k_fc_time, k_mer_time, k_br_time)
         figures[col] = fig
         
     return ang, figures
+
 
 def check_credentials(username, passward):
     if username in username_passward and passward == username_passward[username][0]:

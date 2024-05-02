@@ -5,8 +5,8 @@ import streamlit as st
 import numpy as np
 from glob import glob
 import data_concat
-from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly
-from graph_data import save_feedback, kinematic_sequence_plotly, energy_flow_plotly, energy_plotly
+from graph_data import show_login_form,transform_list, grf_plotly, one_angle_plotly,x_factor_plotly
+from graph_data import kinematic_sequence_plotly, segment_power_plotly, linear_momentum_plotly,angular_momentum_plotly
 
 csv_file = 'feedback.csv'
 feedback_df = pd.read_csv(csv_file)
@@ -129,21 +129,47 @@ else:
         'PELVIS_TORSO_AP_DISTANCE'        : 'PELVIS-HEAD DISTANCE',
         'ANKLE_HAND_AP_DISTANCE'          : 'ANKLE-HAND DISTANCE',
     }
+    xfactor_cols = {
+        'TORSO_PELVIS_ANGLE_Z'            : ['X-Factor', 'yellow'],
+        'PELVIS_ANGLE_Z'                  : ['PELVIS', 'red'],
+        'TORSO_ANGLE_Z'                   : ['TORSO', 'green'],
+    }
+    sp_cols = {
+        "PELVIS_NET_SP" : ["PELVIS","red"],
+        "TORSO_NET_SP" : ["TORSO","green"],
+        "LEAD_ARM_NET_SP" : ["UPPER ARM","blue"],
+        "LEAD_FOREARM_NET_SP" : ["FOREARM","yellow"],
+    }
+    
+    lm_cols = {
+        "PELVIS_LINEAR_MOMENTUM": ["PELVIS","red"],
+        "TORSO_LINEAR_MOMENTUM": ["TORSO","green"],
+        "LEAD_UPA_LINEAR_MOMENTUM": ["UPPER ARM","blue"],
+        "LEAD_FA_LINEAR_MOMENTUM": ["FOREARM","yellow"],
+    }
+    
+    am_cols = {
+        "PELVIS_ANGULAR_MOMENTUM": ["PELVIS","red"],
+        "TORSO_ANGULAR_MOMENTUM": ["TORSO","green"],
+        "LEAD_UPA_ANGULAR_MOMENTUM": ["UPPER ARM","blue"],
+        "LEAD_FA_ANGULAR_MOMENTUM": ["FOREARM","yellow"],
+    }
+    
     energy_cols = {
-        "LEAD_SHANK_LINEAR_MOMENTUM": ["SHANK LINEAR MOMENTUM","shank_energy"],
-        "LEAD_THIGH_LINEAR_MOMENTUM": ["THIGH LINEAR MOMENTUM","thigh_energy"],
+        # "LEAD_SHANK_LINEAR_MOMENTUM": ["SHANK LINEAR MOMENTUM","shank_energy"],
+        # "LEAD_THIGH_LINEAR_MOMENTUM": ["THIGH LINEAR MOMENTUM","thigh_energy"],
         "PELVIS_LINEAR_MOMENTUM": ["PELVIS LINEAR MOMENTUM","pelvis_energy"],
         "TORSO_LINEAR_MOMENTUM": ["TORSO LINEAR MOMENTUM","torso_energy"],
         "LEAD_UPA_LINEAR_MOMENTUM": ["ARM LINEAR MOMENTUM","arm_energy"],
         "LEAD_FA_LINEAR_MOMENTUM": ["FOREARM LINEAR MOMENTUM","forearm_energy"],
-        "LEAD_SHANK_ANGULAR_MOMENTUM": ["SHANK ANGULAR MOMENTUM","shank_energy"],
-        "LEAD_THIGH_ANGULAR_MOMENTUM": ["THIGH ANGULAR MOMENTUM","thigh_energy"],
+        # "LEAD_SHANK_ANGULAR_MOMENTUM": ["SHANK ANGULAR MOMENTUM","shank_energy"],
+        # "LEAD_THIGH_ANGULAR_MOMENTUM": ["THIGH ANGULAR MOMENTUM","thigh_energy"],
         "PELVIS_ANGULAR_MOMENTUM": ["PELVIS ANGULAR MOMENTUM","pelvis_energy"],
         "TORSO_ANGULAR_MOMENTUM": ["TORSO ANGULAR MOMENTUM","torso_energy"],
         "LEAD_UPA_ANGULAR_MOMENTUM": ["ARM ANGULAR MOMENTUM","arm_energy"],
         "LEAD_FA_ANGULAR_MOMENTUM": ["FOREARM ANGULAR MOMENTUM","forearm_energy"],
-        "LEAD_SHANK_NET_SP" : ["SHANK POWER","shank_energy"],
-        "LEAD_THIGH_NET_SP" : ["THIGH POWER","thigh_energy"],
+        # "LEAD_SHANK_NET_SP" : ["SHANK POWER","shank_energy"],
+        # "LEAD_THIGH_NET_SP" : ["THIGH POWER","thigh_energy"],
         "PELVIS_NET_SP" : ["PELVIS POWER","pelvis_energy"],
         "TORSO_NET_SP" : ["TORSO POWER","torso_energy"],
         "LEAD_ARM_NET_SP" : ["ARM POWER","arm_energy"],
@@ -156,7 +182,11 @@ else:
     force_momentum_fig, force_momentum_values = grf_plotly(f_df, momentum_cols, f_time, f_kh_time1, f_fc_time, f_mer_time, f_br_time, axis='freemoment')
     kine_values, kine_fig = one_angle_plotly(k_df, ang_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
     kinematic_values, kinematic_fig = kinematic_sequence_plotly(k_df, ks_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
-    energy_values, energy_fig = energy_plotly(k_df, energy_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    segment_power_values, segment_power_fig = segment_power_plotly(k_df, sp_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    linear_momentum_values, linear_momentum_fig = linear_momentum_plotly(k_df, lm_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    angular_momentum_values, angular_momentum_fig = angular_momentum_plotly(k_df, am_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    xfactor_values, xfactor_fig = angular_momentum_plotly(k_df, xfactor_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
+    # energy_values, energy_fig = energy_plotly(k_df, energy_cols, k_time, k_kh_time1, k_fc_time, k_mer_time, k_br_time)
     
     
     force_ap_fig.update_layout(
@@ -175,22 +205,25 @@ else:
         width=800,  # Set the width to your preference
         height=400  # Set the height to your preference
     )
+    segment_power_fig.update_layout(
+        width=800,  # Set the width to your preference
+        height=400  # Set the height to your preference
+    )
+    linear_momentum_fig.update_layout(
+        width=800,  # Set the width to your preference
+        height=400  # Set the height to your preference
+    )
+    angular_momentum_fig.update_layout(
+        width=800,  # Set the width to your preference
+        height=400  # Set the height to your preference
+    )
     for col in kine_fig:
         fig = kine_fig[col]
         fig.update_layout(
         width=800,  # Set the width to your preference
         height=400  # Set the height to your preference
         )
-    for col in energy_fig:
-        fig = energy_fig[col]
-        fig.update_layout(
-        width=800,  # Set the width to your preference
-        height=400  # Set the height to your preference
-        )
-    kinematic_fig.update_layout(
-        width=800,
-        height=400
-    )
+
 
     peak_pel = round(kinematic_values['peak']['PELVIS_SEG_ANGULAR_VELOCITY_Z']); time_pel = kinematic_values['time']['PELVIS_SEG_ANGULAR_VELOCITY_Z']
     peak_tor = round(kinematic_values['peak']['TORSO_SEG_ANGULAR_VELOCITY_Z']);time_tor = kinematic_values['time']['TORSO_SEG_ANGULAR_VELOCITY_Z']
@@ -210,8 +243,8 @@ else:
     expected_order = transform_list(sq_time)
 
     data_as_dict = {
-        "Segment": ["Pelvic [°/s]", "Torso [°/s]", "Elbow [°/s]", "Shoulder [°/s]"],
-        "Peak": [peak_pel, peak_tor, peak_elb, peak_sho],
+        "Segment": ["Pelvic", "Torso", "Elbow", "Shoulder"],
+        "Peak": [f"{peak_pel} °/s", f"{peak_tor} °/s", f"{peak_elb} °/s", f"{peak_sho} °/s"],
         "Timing [FC-BR%]": [f"{pel_time} %", f"{tor_time} %", f"{elb_time} %", f"{sho_time} %"],
         "Sequence": expected_order,
         "Speed Gain": [0, tor_gain,upper_gain, fore_gain],
@@ -221,13 +254,93 @@ else:
     kinematic_sq = kinematic_sq.set_index('Segment')
     kinematic_sq['Speed Gain'] = kinematic_sq['Speed Gain'].astype(float).map('{:.2f}'.format)
     kinematic_sq = kinematic_sq.style.set_properties(**{'text-align': 'center'})
+
+    sp_data_dict = {
+        "Segment" : ["Pelvis", "Torso", "Upper Arm" , "ForeArm"],
+        "at FC": [f"{round(segment_power_values['fc_time']['PELVIS_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['fc_time']['TORSO_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['fc_time']['LEAD_ARM_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['fc_time']['LEAD_FOREARM_NET_SP'],2)} W/kg"],
+        "at MER": [f"{round(segment_power_values['mer_time']['PELVIS_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['mer_time']['TORSO_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['mer_time']['LEAD_ARM_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['mer_time']['LEAD_FOREARM_NET_SP'],2)} W/kg"],
+        "at BR": [f"{round(segment_power_values['br_time']['PELVIS_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['br_time']['TORSO_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['br_time']['LEAD_ARM_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['br_time']['LEAD_FOREARM_NET_SP'],2)} W/kg"],
+        "at MAX": [f"{round(segment_power_values['max']['PELVIS_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['max']['TORSO_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['max']['LEAD_ARM_NET_SP'],2)} W/kg", 
+                  f"{round(segment_power_values['max']['LEAD_FOREARM_NET_SP'],2)} W/kg"],
+        "at MAX TIMING [FC-BR%]": [f"{round(100*(segment_power_values['max_time']['PELVIS_NET_SP'] - k_fc_time) / k_total_time)} %", 
+                                    f"{round(100*(segment_power_values['max_time']['TORSO_NET_SP'] - k_fc_time)/k_total_time)} %", 
+                                    f"{round(100*(segment_power_values['max_time']['LEAD_ARM_NET_SP'] - k_fc_time) / k_total_time)} %", 
+                                    f"{round(100*(segment_power_values['max_time']['LEAD_FOREARM_NET_SP'] - k_fc_time)/ k_total_time)} %"],
+    }
+    lm_data_dict = {
+        "Segment" : ["Pelvis", "Torso", "Upper Arm" , "ForeArm"],
+        "at FC": [f"{round(linear_momentum_values['fc_time']['PELVIS_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['fc_time']['TORSO_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['fc_time']['LEAD_UPA_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['fc_time']['LEAD_FA_LINEAR_MOMENTUM'],2)} kg•m/s"],
+        "at MER": [f"{round(linear_momentum_values['mer_time']['PELVIS_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['mer_time']['TORSO_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['mer_time']['LEAD_UPA_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['mer_time']['LEAD_FA_LINEAR_MOMENTUM'],2)} kg•m/s"],
+        "at BR": [f"{round(linear_momentum_values['br_time']['PELVIS_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['br_time']['TORSO_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['br_time']['LEAD_UPA_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['br_time']['LEAD_FA_LINEAR_MOMENTUM'],2)} kg•m/s"],
+        "at MAX": [f"{round(linear_momentum_values['max']['PELVIS_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['max']['TORSO_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['max']['LEAD_UPA_LINEAR_MOMENTUM'],2)} kg•m/s", 
+                  f"{round(linear_momentum_values['max']['LEAD_FA_LINEAR_MOMENTUM'],2)} kg•m/s"],
+        "at MAX TIMING [FC-BR%]": [f"{round(100 * (linear_momentum_values['max_time']['PELVIS_LINEAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+                                    f"{round(100 * (linear_momentum_values['max_time']['TORSO_LINEAR_MOMENTUM'] - k_fc_time)/k_total_time)} %", 
+                                    f"{round(100 * (linear_momentum_values['max_time']['LEAD_UPA_LINEAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+                                    f"{round(100 * (linear_momentum_values['max_time']['LEAD_FA_LINEAR_MOMENTUM'] - k_fc_time)/ k_total_time)} %"],
+    }
+    am_data_dict = {
+        "Segment" : ["Pelvis", "Torso", "Upper Arm" , "ForeArm"],
+        "at FC": [f"{round(angular_momentum_values['fc_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['fc_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['fc_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['fc_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
+        "at MER": [f"{round(angular_momentum_values['mer_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['mer_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['mer_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['mer_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
+        "at BR": [f"{round(angular_momentum_values['br_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['br_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['br_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['br_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
+        "at MAX": [f"{round(angular_momentum_values['max']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['max']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['max']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['max']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
+        "at MAX TIMING [FC-BR%]": [f"{round(100*(angular_momentum_values['max_time']['PELVIS_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+                                   f"{round(100*(angular_momentum_values['max_time']['TORSO_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+                                   f"{round(100*(angular_momentum_values['max_time']['LEAD_UPA_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+                                   f"{round(100*(angular_momentum_values['max_time']['LEAD_FA_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %"],
+    }
+    
+    sp_df = pd.DataFrame(sp_data_dict)
+    sp_df = sp_df.set_index('Segment')
+    sp_df = sp_df.style.set_properties(**{'text-align': 'center'})
+    lm_df = pd.DataFrame(lm_data_dict)
+    lm_df = lm_df.set_index('Segment')
+    lm_df = lm_df.style.set_properties(**{'text-align': 'center'})
+    am_df = pd.DataFrame(am_data_dict)
+    am_df = am_df.set_index('Segment')
+    am_df = am_df.style.set_properties(**{'text-align': 'center'})
     # ===================================================================================
     # ============================= DashBoard ===========================================
     page_tab1, page_tab2 = st.tabs(["데이터 보기", "피드백"])
 
     with page_tab1:
         st.markdown('<a name="top"></a>', unsafe_allow_html=True)
-        st.write('PARAMTERS')
+        st.write('PARAMETERS')
         st.markdown("""
         <style>
         .fixed-top a {
@@ -251,9 +364,7 @@ else:
         # 고정된 상단 바에 넣을 링크들입니다.
         st.markdown("""
         <div class="fixed-top">
-            <a href="#linear-momentum">Linear Momentum</a>
-            <a href="#angular-momentum">Angular Momentum</a>
-            <a href="#segment-power">Segment Power</a>
+            <a href="#energy-flow">Energy Flow</a>
             <a href="#kinematic-sequence">Kinematic Sequence</a>
             <a href="#ball-release">Ball Release</a>
             <a href="#arm-acceleration">Arm Acceleration</a>
@@ -305,84 +416,110 @@ else:
                 <h2>ENERGY FLOW</h2>
             </div>
         """, unsafe_allow_html=True)
+        st.markdown('<a name="energy-flow"></a>', unsafe_allow_html=True)
+        ef_taps = st.tabs(['LINEAR MOMENTUM', 'ANGULAR MOMENTUM','SEGMENT POWER'])
+        with ef_taps[0]:
+            col1, col2 = st.columns([1,2.8])
+            with col1:
+                st.image(f'image/energy_flow.png', use_column_width=True)
+            with col2:
+                st.plotly_chart(linear_momentum_fig, use_container_width=True)
+            st.dataframe(lm_df, use_container_width=True)       
+
+        with ef_taps[1]:
+            col1, col2 = st.columns([1,2.8])
+            with col1:
+                st.image(f'image/energy_flow.png', use_column_width=True)
+            with col2:
+                st.plotly_chart(angular_momentum_fig, use_container_width=True)
+            st.dataframe(am_df, use_container_width=True)       
+
+        with ef_taps[2]:
+            col1, col2 = st.columns([1,2.8])
+            with col1:
+                st.image(f'image/energy_flow.png', use_column_width=True)
+            with col2:
+                st.plotly_chart(segment_power_fig, use_container_width=True)
+            st.dataframe(sp_df, use_container_width=True)       
         
-        ## LINEAR MOMENTUM
-        st.subheader('Linear Momentum')
-        st.markdown('<a name="linear-momentum"></a>', unsafe_allow_html=True)
-        tabs_keys = ['LEAD_SHANK_LINEAR_MOMENTUM','LEAD_THIGH_LINEAR_MOMENTUM', 'PELVIS_LINEAR_MOMENTUM', 
-                     'TORSO_LINEAR_MOMENTUM', 'LEAD_UPA_LINEAR_MOMENTUM','LEAD_FA_LINEAR_MOMENTUM']
-        lm_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
-        for tab, key in zip(lm_taps, tabs_keys):
-            with tab:
-                col1, col2 = st.columns([1,2.8])
-                with col1:
-                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
-                with col2:
-                    st.plotly_chart(energy_fig[key], use_container_width=True)
-                cols = st.columns([1,1,1,1,1])
-                metrics = ['fc_time','mer_time','br_time','max','max_time']
-                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
-                values = [energy_values[m][key] for m in metrics]
-                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
-                    with col:
-                        if metrics[i] in ['fc_time','br_time','mer_time','max']:
-                            # Use Streamlit's metric for the rest of the values
-                            st.metric(label=label, value=f"{value} kg•m²/s", delta=None)
-                        elif metrics[i] in ['max_time']:
-                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
+        # ## LINEAR MOMENTUM
+        # st.subheader('Linear Momentum')
+        # st.markdown('<a name="linear-momentum"></a>', unsafe_allow_html=True)
+        # tabs_keys = ['LEAD_SHANK_LINEAR_MOMENTUM','LEAD_THIGH_LINEAR_MOMENTUM', 'PELVIS_LINEAR_MOMENTUM', 
+        #              'TORSO_LINEAR_MOMENTUM', 'LEAD_UPA_LINEAR_MOMENTUM','LEAD_FA_LINEAR_MOMENTUM']
+        # lm_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        # for tab, key in zip(lm_taps, tabs_keys):
+        #     with tab:
+        #         col1, col2 = st.columns([1,2.8])
+        #         with col1:
+        #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+        #         with col2:
+        #             st.plotly_chart(energy_fig[key], use_container_width=True)
+        #         cols = st.columns([1,1,1,1,1])
+        #         metrics = ['fc_time','mer_time','br_time','max','max_time']
+        #         labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
+        #         values = [energy_values[m][key] for m in metrics]
+        #         for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+        #             with col:
+        #                 if metrics[i] in ['fc_time','br_time','mer_time','max']:
+        #                     # Use Streamlit's metric for the rest of the values
+        #                     st.metric(label=label, value=f"{value} kg•m²/s", delta=None)
+        #                 elif metrics[i] in ['max_time']:
+        #                     st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
+        # st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
         
-        ## ANGULAR MOMENTUM
-        st.subheader('Angular Momentum')
-        st.markdown('<a name="angular-momentum"></a>', unsafe_allow_html=True)
-        tabs_keys = ['LEAD_SHANK_ANGULAR_MOMENTUM','LEAD_THIGH_ANGULAR_MOMENTUM', 'PELVIS_ANGULAR_MOMENTUM', 
-                     'TORSO_ANGULAR_MOMENTUM', 'LEAD_UPA_ANGULAR_MOMENTUM','LEAD_FA_ANGULAR_MOMENTUM']
-        am_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
-        for tab, key in zip(am_taps, tabs_keys):
-            with tab:
-                col1, col2 = st.columns([1,2.8])
-                with col1:
-                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
-                with col2:
-                    st.plotly_chart(energy_fig[key], use_container_width=True)
-                cols = st.columns([1,1,1,1,1])    
-                metrics = ['fc_time','mer_time','br_time','max','max_time']
-                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
-                values = [energy_values[m][key] for m in metrics]
-                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
-                    with col:
-                        if metrics[i] in ['fc_time','br_time','mer_time','max']:
-                            # Use Streamlit's metric for the rest of the values
-                            st.metric(label=label, value=f"{value} kg•m²/(s•rad)", delta=None)
-                        elif metrics[i] in ['max_time']:
-                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None)
-        st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
+        # ## ANGULAR MOMENTUM
+        # st.subheader('Angular Momentum')
+        # st.markdown('<a name="angular-momentum"></a>', unsafe_allow_html=True)
+        # tabs_keys = ['LEAD_SHANK_ANGULAR_MOMENTUM','LEAD_THIGH_ANGULAR_MOMENTUM', 'PELVIS_ANGULAR_MOMENTUM', 
+        #              'TORSO_ANGULAR_MOMENTUM', 'LEAD_UPA_ANGULAR_MOMENTUM','LEAD_FA_ANGULAR_MOMENTUM']
+        # am_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        # for tab, key in zip(am_taps, tabs_keys):
+        #     with tab:
+        #         col1, col2 = st.columns([1,2.8])
+        #         with col1:
+        #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+        #         with col2:
+        #             st.plotly_chart(energy_fig[key], use_container_width=True)
+        #         cols = st.columns([1,1,1,1,1])    
+        #         metrics = ['fc_time','mer_time','br_time','max','max_time']
+        #         labels = ['At FC', 'At MER', 'At BR', 'Max', 'Max Time']
+        #         values = [energy_values[m][key] for m in metrics]
+        #         for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+        #             with col:
+        #                 if metrics[i] in ['fc_time','br_time','mer_time','max']:
+        #                     # Use Streamlit's metric for the rest of the values
+        #                     st.metric(label=label, value=f"{value} kg•m²/(s•rad)", delta=None)
+        #                 elif metrics[i] in ['max_time']:
+        #                     st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None)
+        # st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
         
-        ## Segment Power
-        st.subheader('Segment Power')
-        st.markdown('<a name="segment-power"></a>', unsafe_allow_html=True)    
-        tabs_keys = ['LEAD_SHANK_NET_SP','LEAD_THIGH_NET_SP', 'PELVIS_NET_SP', 
-                     'TORSO_NET_SP', 'LEAD_ARM_NET_SP','LEAD_FOREARM_NET_SP']
-        sp_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
-        for tab, key in zip(sp_taps, tabs_keys):
-            with tab:
-                col1, col2 = st.columns([1,2.8])
-                with col1:
-                    st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
-                with col2:
-                    st.plotly_chart(energy_fig[key], use_container_width=True)
-                cols = st.columns([1,1,1,1,1,1,1])    
-                metrics = ['fc_time','mer_time','br_time','max','min','max_time','min_time']
-                labels = ['At FC', 'At MER', 'At BR', 'Max', 'Min', 'Max Time','Min Time']
-                values = [energy_values[m][key] for m in metrics]
-                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
-                    with col:
-                        if metrics[i] in ['fc_time','br_time','mer_time','max','min']:
-                            # Use Streamlit's metric for the rest of the values
-                            st.metric(label=label, value=f"{value}", delta=None)
-                        elif metrics[i] in ['max_time','min_time']:
-                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
-        st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)        
+        # ## Segment Power
+        # st.subheader('Segment Power')
+        # st.markdown('<a name="segment-power"></a>', unsafe_allow_html=True)    
+        # tabs_keys = ['LEAD_SHANK_NET_SP','LEAD_THIGH_NET_SP', 'PELVIS_NET_SP', 
+        #              'TORSO_NET_SP', 'LEAD_ARM_NET_SP','LEAD_FOREARM_NET_SP']
+        # sp_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
+        # for tab, key in zip(sp_taps, tabs_keys):
+        #     with tab:
+        #         col1, col2 = st.columns([1,2.8])
+        #         with col1:
+        #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+        #         with col2:
+        #             st.plotly_chart(energy_fig[key], use_container_width=True)
+        #         cols = st.columns([1,1,1,1,1,1,1])    
+        #         metrics = ['fc_time','mer_time','br_time','max','min','max_time','min_time']
+        #         labels = ['At FC', 'At MER', 'At BR', 'Max', 'Min', 'Max Time','Min Time']
+        #         values = [energy_values[m][key] for m in metrics]
+        #         for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+        #             with col:
+        #                 if metrics[i] in ['fc_time','br_time','mer_time','max','min']:
+        #                     # Use Streamlit's metric for the rest of the values
+        #                     st.metric(label=label, value=f"{value}", delta=None)
+        #                 elif metrics[i] in ['max_time','min_time']:
+        #                     st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
+        # st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)        
 
         # KINEMATICS PARAMETERS
         st.markdown("""
@@ -489,36 +626,63 @@ else:
         tabs_keys = ['HAND_ELBOW_HEIGHT','PELVIS_TORSO_AP_DISTANCE','TORSO_PELVIS_ANGLE_Z','LEAD_SHOULDER_ANGLE_Z','LEAD_SHOULDER_ANGLE_X', 'LEAD_ELBOW_ANGLE_X','LEAD_KNEE_ANGLE_X']
         ac_taps = st.tabs(['LATE RISE','Getting Out in Front','X FACTOR','SHOULDER EXTERNAL ROTATION','SHOULDER HORIZONTAL ABDUCTION','ELBOW FLEXION','KNEE EXTENSION'])  
         for tab, key in zip(ac_taps, tabs_keys):
-            if 'ANGLE' in key:
-                unit = '°'
-            elif 'ANGULAR' in key:
-                unit = '°/s'
+            if key != 'TORSO_PELVIS_ANGLE_Z':
+                if 'ANGLE' in key:
+                    unit = '°'
+                elif 'ANGULAR' in key:
+                    unit = '°/s'
+                else:
+                    unit = 'cm'
+                with tab:
+                    col1, col2 = st.columns([1,2.8])
+                    with col1:
+                        st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                    with col2:
+                        st.plotly_chart(kine_fig[key], use_container_width=True)
+                    
+                    cols = st.columns([1,1,1,1,1])
+                    metrics = ['fc_time','mer_time','br_time','max','max_time']
+                    labels = ['At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
+                    values = [kine_values[m][key] for m in metrics]
+                    for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                        with col:
+                            if metrics[i] == 'fc_time':  # Highlight the 'At BR' value in red
+                                # Customize as per your actual styling needs
+                                st.markdown(
+                                    f"<div style='text-align: left;'><span style='font-size: 15px; color:red;'>{label}</span><br><span style='color: red; font-size: 36px;'>{value} {unit}</span></div>",
+                                    unsafe_allow_html=True
+                                )
+                            elif metrics[i] in ['br_time','mer_time','max']:
+                                # Use Streamlit's metric for the rest of the values
+                                st.metric(label=label, value=f"{value} {unit}", delta=None)
+                            elif metrics[i] == 'max_time':
+                                st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
             else:
-                unit = 'cm'
-            with tab:
-                col1, col2 = st.columns([1,2.8])
-                with col1:
-                    st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
-                with col2:
-                    st.plotly_chart(kine_fig[key], use_container_width=True)
-                
-                cols = st.columns([1,1,1,1,1])
-                metrics = ['fc_time','mer_time','br_time','max','max_time']
-                labels = ['At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
-                values = [kine_values[m][key] for m in metrics]
-                for i, (col, label, value) in enumerate(zip(cols, labels, values)):
-                    with col:
-                        if metrics[i] == 'fc_time':  # Highlight the 'At BR' value in red
-                            # Customize as per your actual styling needs
-                            st.markdown(
-                                f"<div style='text-align: left;'><span style='font-size: 15px; color:red;'>{label}</span><br><span style='color: red; font-size: 36px;'>{value} {unit}</span></div>",
-                                unsafe_allow_html=True
-                            )
-                        elif metrics[i] in ['br_time','mer_time','max']:
-                            # Use Streamlit's metric for the rest of the values
-                            st.metric(label=label, value=f"{value} {unit}", delta=None)
-                        elif metrics[i] == 'max_time':
-                            st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None) 
+                unit = '°'
+                with tab:
+                    col1, col2 = st.columns([1,2.8])
+                    with col1:
+                        st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                    with col2:
+                        st.plotly_chart(xfactor_fig, use_container_width=True)
+                    cols = st.columns([1,1,1,1,1])
+                    metrics = ['fc_time','mer_time','br_time','max','max_time']
+                    labels = ['At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
+                    values = [kine_values[m][key] for m in metrics] 
+                    for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+                        with col:
+                            if metrics[i] == 'fc_time':  # Highlight the 'At BR' value in red
+                                # Customize as per your actual styling needs
+                                st.markdown(
+                                    f"<div style='text-align: left;'><span style='font-size: 15px; color:red;'>{label}</span><br><span style='color: red; font-size: 36px;'>{value} {unit}</span></div>",
+                                    unsafe_allow_html=True
+                                )
+                            elif metrics[i] in ['br_time','mer_time','max']:
+                                # Use Streamlit's metric for the rest of the values
+                                st.metric(label=label, value=f"{value} {unit}", delta=None)
+                            elif metrics[i] == 'max_time':
+                                st.metric(label=label, value=f"{round(100 * (value - k_fc_time) / k_total_time)} %", delta=None)
+                                 
         st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
 
         ## STRIDE
