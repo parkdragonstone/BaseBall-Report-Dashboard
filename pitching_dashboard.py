@@ -399,7 +399,7 @@ with page_tab1:
             <h2>EVENTS & PHASES</h2>
         </div>
     """, unsafe_allow_html=True)
-    st.image('image/analysis.png', use_column_width=True)
+    st.image('image/analysis.png', use_container_width=True)
     
     st.empty()  # 상단에 빈 공간 추가
     ## ENERGY FLOW
@@ -422,25 +422,25 @@ with page_tab1:
     with ef_taps[0]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image(f'image/energy_flow.png', use_column_width=True)
+            st.image(f'image/energy_flow.png', use_container_width=True)
         with col2:
-            st.plotly_chart(linear_momentum_fig, use_container_width=True)
+            st.plotly_chart(linear_momentum_fig, use_container_width=True,key='linear_momentum_fig')
         st.dataframe(lm_df, use_container_width=True)       
 
     with ef_taps[1]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image(f'image/energy_flow.png', use_column_width=True)
+            st.image(f'image/energy_flow.png', use_container_width=True)
         with col2:
-            st.plotly_chart(angular_momentum_fig, use_container_width=True)
+            st.plotly_chart(angular_momentum_fig, use_container_width=True,key='angular_momentum_fig')
         st.dataframe(am_df, use_container_width=True)       
 
     with ef_taps[2]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image(f'image/energy_flow.png', use_column_width=True)
+            st.image(f'image/energy_flow.png', use_container_width=True)
         with col2:
-            st.plotly_chart(segment_power_fig, use_container_width=True)
+            st.plotly_chart(segment_power_fig, use_container_width=True, key='segment_power_fig')
         st.dataframe(sp_df, use_container_width=True)       
     
     st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
@@ -454,7 +454,7 @@ with page_tab1:
     #     with tab:
     #         col1, col2 = st.columns([1,2.8])
     #         with col1:
-    #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+    #             st.image(f'image/{energy_cols[key][1]}.png', use_container_width=True)
     #         with col2:
     #             st.plotly_chart(energy_fig[key], use_container_width=True)
     #         cols = st.columns([1,1,1,1,1])
@@ -480,7 +480,7 @@ with page_tab1:
     #     with tab:
     #         col1, col2 = st.columns([1,2.8])
     #         with col1:
-    #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+    #             st.image(f'image/{energy_cols[key][1]}.png', use_container_width=True)
     #         with col2:
     #             st.plotly_chart(energy_fig[key], use_container_width=True)
     #         cols = st.columns([1,1,1,1,1])    
@@ -506,7 +506,7 @@ with page_tab1:
     #     with tab:
     #         col1, col2 = st.columns([1,2.8])
     #         with col1:
-    #             st.image(f'image/{energy_cols[key][1]}.png', use_column_width=True)
+    #             st.image(f'image/{energy_cols[key][1]}.png', use_container_width=True)
     #         with col2:
     #             st.plotly_chart(energy_fig[key], use_container_width=True)
     #         cols = st.columns([1,1,1,1,1,1,1])    
@@ -543,9 +543,9 @@ with page_tab1:
     st.subheader('Kinematic Sequence')
     col1, col2 = st.columns([1,2.8])
     with col1:
-        st.image('image/kinematic.png', use_column_width=True)
+        st.image('image/kinematic.png', use_container_width=True)
     with col2:
-        st.plotly_chart(kinematic_fig, use_container_width=True)
+        st.plotly_chart(kinematic_fig, use_container_width=True,key='kinematic_fig')
     # Streamlit에서 테이블 형태로 DataFrame 표시.
     st.dataframe(kinematic_sq, use_container_width=True)
     st.markdown('<a href="#top" class="scrollToTop">Go to top</a>', unsafe_allow_html=True)
@@ -565,9 +565,9 @@ with page_tab1:
         with tab:
             col1, col2 = st.columns([1,2.8])
             with col1:
-                st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                st.image(f'image/{ang_cols[key]}.png', use_container_width=True)
             with col2:
-                st.plotly_chart(kine_fig[key], use_container_width=True)
+                st.plotly_chart(kine_fig[key], use_container_width=True, key=f"{key}.png")
             
             cols = st.columns([1,1,1,1,1])
             metrics = ['fc_time','mer_time','br_time','max','max_time']
@@ -604,9 +604,9 @@ with page_tab1:
         with tab:
             col1, col2 = st.columns([1,2.8])
             with col1:
-                st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                st.image(f'image/{ang_cols[key]}.png', use_container_width=True)
             with col2:
-                st.plotly_chart(kine_fig[key], use_container_width=True)
+                st.plotly_chart(kine_fig[key], use_container_width=True,key=f"{key}")
             
             cols = st.columns([1,1,1,1,1])
             metrics = ['fc_time','mer_time','br_time','max','max_time']
@@ -637,9 +637,9 @@ with page_tab1:
             with tab:
                 col1, col2 = st.columns([1,2.8])
                 with col1:
-                    st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                    st.image(f'image/{ang_cols[key]}.png', use_container_width=True)
                 with col2:
-                    st.plotly_chart(kine_fig[key], use_container_width=True)
+                    st.plotly_chart(kine_fig[key], use_container_width=True, key=f"{key}.jpg")
                 
                 cols = st.columns([1,1,1,1,1])
                 metrics = ['fc_time','mer_time','br_time','max','max_time']
@@ -663,9 +663,9 @@ with page_tab1:
             with tab:
                 col1, col2 = st.columns([1,2.8])
                 with col1:
-                    st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                    st.image(f'image/{ang_cols[key]}.png', use_container_width=True)
                 with col2:
-                    st.plotly_chart(xfactor_fig, use_container_width=True)
+                    st.plotly_chart(xfactor_fig, use_container_width=True, key='xfactor_fig')
                 cols = st.columns([1,1,1,1,1])
                 metrics = ['fc_time','mer_time','br_time','max','max_time']
                 labels = ['At FC', 'At MER', 'At BR', 'At Max', 'At Max Time']
@@ -701,9 +701,9 @@ with page_tab1:
         with tab:
             col1, col2 = st.columns([1,2.8])
             with col1:
-                st.image(f'image/{ang_cols[key]}.png', use_column_width=True)
+                st.image(f'image/{ang_cols[key]}.png', use_container_width=True)
             with col2:
-                st.plotly_chart(kine_fig[key], use_container_width=True)
+                st.plotly_chart(kine_fig[key], use_container_width=True, key=f'{key}_stride')
             
             cols = st.columns([1,1,1,1,1])
             metrics = ['fc_time','mer_time','br_time','max','max_time']
@@ -741,9 +741,9 @@ with page_tab1:
     with kinetics_tab[0]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image('image/GRF_Y.png', use_column_width=True)
+            st.image('image/GRF_Y.png', use_container_width=True)
         with col2:
-            st.plotly_chart(force_ap_fig, use_container_width=True)
+            st.plotly_chart(force_ap_fig, use_container_width=True, key=f"{force_ap_fig}")
         
         leg = ['Trail Leg', 'Stride Leg']
         force_key = ['REAR_FORCE_Y','LEAD_FORCE_Y']
@@ -773,9 +773,9 @@ with page_tab1:
     with kinetics_tab[1]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image('image/GRF_Z.png', use_column_width=True)
+            st.image('image/GRF_Z.png', use_container_width=True)
         with col2:
-            st.plotly_chart(force_vt_fig, use_container_width=True)
+            st.plotly_chart(force_vt_fig, use_container_width=True, key="force_vt_fig")
         
         
         force_key = ['REAR_FORCE_Z','LEAD_FORCE_Z']
@@ -805,9 +805,9 @@ with page_tab1:
     with kinetics_tab[2]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image('image/GRF_R.png', use_column_width=True)
+            st.image('image/GRF_R.png', use_container_width=True)
         with col2:
-            st.plotly_chart(force_result_fig, use_container_width=True)
+            st.plotly_chart(force_result_fig, use_container_width=True, key="force_result_fig")
         
         
         force_key = ['REAR_RESULT','LEAD_RESULT']
@@ -837,9 +837,9 @@ with page_tab1:
     with kinetics_tab[3]:
         col1, col2 = st.columns([1,2.8])
         with col1:
-            st.image('image/GRF_FREE.png', use_column_width=True)
+            st.image('image/GRF_FREE.png', use_container_width=True)
         with col2:
-            st.plotly_chart(force_momentum_fig, use_container_width=True)
+            st.plotly_chart(force_momentum_fig, use_container_width=True, key='force_momentum_fig')
         
         
         force_key = ['REAR_FREEMOMENT_Z','LEAD_FREEMOMENT_Z']
