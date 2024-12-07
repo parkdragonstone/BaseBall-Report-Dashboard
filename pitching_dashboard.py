@@ -164,8 +164,8 @@ else:
         "LEAD_FA_LINEAR_MOMENTUM": ["FOREARM LINEAR MOMENTUM","forearm_energy"],
         # "LEAD_SHANK_ANGULAR_MOMENTUM": ["SHANK ANGULAR MOMENTUM","shank_energy"],
         # "LEAD_THIGH_ANGULAR_MOMENTUM": ["THIGH ANGULAR MOMENTUM","thigh_energy"],
-        "PELVIS_ANGULAR_MOMENTUM": ["PELVIS ANGULAR MOMENTUM","pelvis_energy"],
-        "TORSO_ANGULAR_MOMENTUM": ["TORSO ANGULAR MOMENTUM","torso_energy"],
+        "PELVIS_ANGULAR_MOMENTUM_Z": ["PELVIS ANGULAR MOMENTUM","pelvis_energy"],
+        "TORSO_ANGULAR_MOMENTUM_Z": ["TORSO ANGULAR MOMENTUM","torso_energy"],
         "LEAD_UPA_ANGULAR_MOMENTUM": ["ARM ANGULAR MOMENTUM","arm_energy"],
         "LEAD_FA_ANGULAR_MOMENTUM": ["FOREARM ANGULAR MOMENTUM","forearm_energy"],
         # "LEAD_SHANK_NET_SP" : ["SHANK POWER","shank_energy"],
@@ -303,24 +303,24 @@ else:
     }
     am_data_dict = {
         "Segment" : ["Pelvis", "Torso", "Upper Arm" , "ForeArm"],
-        "at FC": [f"{round(angular_momentum_values['fc_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
-                  f"{round(angular_momentum_values['fc_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+        "at FC": [f"{round(angular_momentum_values['fc_time']['PELVIS_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['fc_time']['TORSO_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['fc_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['fc_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
-        "at MER": [f"{round(angular_momentum_values['mer_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
-                  f"{round(angular_momentum_values['mer_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+        "at MER": [f"{round(angular_momentum_values['mer_time']['PELVIS_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['mer_time']['TORSO_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['mer_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['mer_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
-        "at BR": [f"{round(angular_momentum_values['br_time']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
-                  f"{round(angular_momentum_values['br_time']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+        "at BR": [f"{round(angular_momentum_values['br_time']['PELVIS_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['br_time']['TORSO_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['br_time']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['br_time']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
-        "at MAX": [f"{round(angular_momentum_values['max']['PELVIS_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
-                  f"{round(angular_momentum_values['max']['TORSO_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
+        "at MAX": [f"{round(angular_momentum_values['max']['PELVIS_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
+                  f"{round(angular_momentum_values['max']['TORSO_ANGULAR_MOMENTUM_Z'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['max']['LEAD_UPA_ANGULAR_MOMENTUM'],2)} kg•m²/s", 
                   f"{round(angular_momentum_values['max']['LEAD_FA_ANGULAR_MOMENTUM'],2)} kg•m²/s"],
-        "at MAX TIMING [FC-BR%]": [f"{round(100*(angular_momentum_values['max_time']['PELVIS_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
-                                   f"{round(100*(angular_momentum_values['max_time']['TORSO_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
+        "at MAX TIMING [FC-BR%]": [f"{round(100*(angular_momentum_values['max_time']['PELVIS_ANGULAR_MOMENTUM_Z'] - k_fc_time) / k_total_time)} %", 
+                                   f"{round(100*(angular_momentum_values['max_time']['TORSO_ANGULAR_MOMENTUM_Z'] - k_fc_time) / k_total_time)} %", 
                                    f"{round(100*(angular_momentum_values['max_time']['LEAD_UPA_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %", 
                                    f"{round(100*(angular_momentum_values['max_time']['LEAD_FA_ANGULAR_MOMENTUM'] - k_fc_time) / k_total_time)} %"],
     }
@@ -472,8 +472,8 @@ else:
         # ## ANGULAR MOMENTUM
         # st.subheader('Angular Momentum')
         # st.markdown('<a name="angular-momentum"></a>', unsafe_allow_html=True)
-        # tabs_keys = ['LEAD_SHANK_ANGULAR_MOMENTUM','LEAD_THIGH_ANGULAR_MOMENTUM', 'PELVIS_ANGULAR_MOMENTUM', 
-        #              'TORSO_ANGULAR_MOMENTUM', 'LEAD_UPA_ANGULAR_MOMENTUM','LEAD_FA_ANGULAR_MOMENTUM']
+        # tabs_keys = ['LEAD_SHANK_ANGULAR_MOMENTUM','LEAD_THIGH_ANGULAR_MOMENTUM', 'PELVIS_ANGULAR_MOMENTUM_Z', 
+        #              'TORSO_ANGULAR_MOMENTUM_Z', 'LEAD_UPA_ANGULAR_MOMENTUM','LEAD_FA_ANGULAR_MOMENTUM']
         # am_taps = st.tabs(['SHANK', 'THIGH', 'PELVIS','TORSO', 'ARM', 'FOREARM'])
         # for tab, key in zip(am_taps, tabs_keys):
         #     with tab:
